@@ -1,0 +1,34 @@
+// TODO Publishing: https://guides.gradle.org/publishing-plugins-to-gradle-plugin-portal/
+plugins {
+    id 'java-gradle-plugin'
+    id 'eclipse'
+}
+
+// Putting this in gradle.properties breaks the build, because this uses it's own releases
+group = 'org.starchartlabs.flare'
+
+description = 'Gradle plug-ins with opinioniated defaults to allow streamlined, consistent operations'
+
+// Always download sources, to allow debugging, and use Eclipse containers for greater portability
+eclipse {
+    classpath { 
+        downloadSources = true 
+    }
+}
+
+// JCenter is the Gradle plug-in standard
+repositories { 
+    jcenter() 
+}
+
+dependencies { 
+    compile gradleApi() 
+}
+
+// Setup default test behavior, including failure logging
+test {
+    useTestNG() { 
+        useDefaultListeners = true 
+    }
+}
+
