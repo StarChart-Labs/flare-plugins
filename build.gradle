@@ -2,6 +2,7 @@
 plugins {
     id 'java-gradle-plugin'
     id 'eclipse'
+    id 'jacoco'
 }
 
 // Putting this in gradle.properties breaks the build, because this uses it's own releases
@@ -35,3 +36,19 @@ test {
         useDefaultListeners = true 
     }
 }
+
+jacocoTestReport {
+    reports {
+        executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+        
+        sourceSets project.sourceSets.main
+        
+        xml.enabled true
+        csv.enabled false
+        html.enabled false
+        xml.destination file("${buildDir}/reports/jacoco/report.xml")
+    }
+}
+
+jacocoTestReport.dependsOn test
+check.dependsOn jacocoTestReport
