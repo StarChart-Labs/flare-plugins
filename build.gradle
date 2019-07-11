@@ -23,6 +23,10 @@ repositories {
 
 dependencies { 
     compile gradleApi() 
+    compile 'org.starchartlabs.alloy:alloy-core:0.4.1'
+    
+    testCompile gradleTestKit()
+    testCompile 'org.testng:testng:6.14.3'
 }
 
 // Setup default test behavior, including failure logging
@@ -31,4 +35,3 @@ test {
         useDefaultListeners = true 
     }
 }
-
