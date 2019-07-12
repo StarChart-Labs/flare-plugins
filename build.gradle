@@ -3,6 +3,7 @@ plugins {
     id 'java-gradle-plugin'
     id 'eclipse'
     id 'jacoco'
+    id 'checkstyle'
 }
 
 // Putting this in gradle.properties breaks the build, because this uses it's own releases
@@ -52,3 +53,15 @@ jacocoTestReport {
 
 jacocoTestReport.dependsOn test
 check.dependsOn jacocoTestReport
+
+checkstyle {
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    configProperties = [ 'checkstyle.config.dir' : rootProject.file('config/checkstyle') ]
+    toolVersion = '8.18'
+}
+ 
+task checkstyleAll{}
+ 
+tasks.withType(Checkstyle).all { checkstyleTask -> checkstyleAll.dependsOn checkstyleTask }
+ 
+check.dependsOn checkstyleAll
