@@ -46,7 +46,7 @@ public class ManagedCredentialsPluginIntegrationTest {
                 .withGradleVersion("5.0")
                 .build();
 
-        result.getOutput().contains(expectedUsername + ":" + expectedPassword);
+        Assert.assertTrue(result.getOutput().contains(expectedUsername + ":" + expectedPassword));
 
         TaskOutcome outcome = result.task(":credentialsPrintout").getOutcome();
         Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
@@ -64,7 +64,7 @@ public class ManagedCredentialsPluginIntegrationTest {
                 .withGradleVersion("5.0")
                 .build();
 
-        result.getOutput().contains(expectedUsername + ":" + expectedPassword);
+        Assert.assertTrue(result.getOutput().contains(expectedUsername + ":" + expectedPassword));
 
         TaskOutcome outcome = result.task(":credentialsPrintout").getOutcome();
         Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
