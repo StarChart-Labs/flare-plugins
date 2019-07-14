@@ -1,0 +1,12 @@
+plugins {
+    id  'org.starchartlabs.flare.dependency-constraints'
+    id 'java'
+}
+
+dependencyConstraints {
+    file file('dependencies.properties')
+}
+
+configurations {
+    createdAfterDsl
+}
