@@ -1,0 +1,9 @@
+plugins {
+    id  'org.starchartlabs.flare.merge-coverage-reports'
+}
+
+allprojects{
+    repositories {
+        jcenter()
+    }
+}

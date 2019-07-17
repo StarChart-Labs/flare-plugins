@@ -1,0 +1,15 @@
+/*
+ * Copyright (C) 2019 StarChart-Labs@github.com Authors
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+package ${package};
+
+public class ${class} {
+
+	public void method(){
+		System.out.println("Hello Test");
+	}
+
+}

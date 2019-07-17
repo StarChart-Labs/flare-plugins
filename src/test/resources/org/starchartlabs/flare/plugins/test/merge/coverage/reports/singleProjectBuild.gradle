@@ -1,0 +1,19 @@
+plugins {
+    id  'org.starchartlabs.flare.merge-coverage-reports'
+    id 'java'
+    id 'jacoco'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile 'org.testng:testng:6.14.3'
+}
+
+test {
+    useTestNG() {
+        useDefaultListeners = true
+    }
+}
