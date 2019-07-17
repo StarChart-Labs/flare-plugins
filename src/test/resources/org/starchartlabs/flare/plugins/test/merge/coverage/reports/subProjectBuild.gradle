@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+}
+
+dependencies {
+    testCompile 'org.testng:testng:6.14.3'
+}
+
+test {
+    useTestNG() {
+        useDefaultListeners = true
+    }
+}

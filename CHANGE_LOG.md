@@ -8,3 +8,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - managed-credentials plug-in which provides a DSL for re-usable loaded credentials from multiple sources
 - dependency-constraints plug-in which provides a DSL for applying dependency version constraints to all configurations in bulk from an external file
+- merge-coverage-reports plug-in which provides setup for merging all coverage reports into a single XML report for the entire Gradle project
