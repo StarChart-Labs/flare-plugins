@@ -17,7 +17,7 @@ public class MergeCoverageReportsPluginTest {
 
     private static final String PLUGIN_ID = "org.starchartlabs.flare.merge-coverage-reports";
 
-    @Test()
+    @Test
     public void singleProjectWithoutJacoco() throws Exception {
         Project project = ProjectBuilder.builder().build();
         project.getPluginManager().apply(PLUGIN_ID);

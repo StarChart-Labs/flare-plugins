@@ -1,0 +1,19 @@
+plugins {
+    id  'org.starchartlabs.flare.multi-module-library'
+}
+
+allprojects{
+    repositories {
+        jcenter()
+    }
+}
+
+task outputManagedCredentials{
+    doLast{
+        credentials.all{
+            project.logger.lifecycle("Credentials configured: ${it.name}")
+        }
+    }
+}
+
+check.dependsOn outputManagedCredentials

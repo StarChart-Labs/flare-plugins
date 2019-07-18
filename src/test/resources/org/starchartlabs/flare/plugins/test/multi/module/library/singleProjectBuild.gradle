@@ -1,0 +1,29 @@
+plugins {
+    id  'org.starchartlabs.flare.multi-module-library'
+    id 'java'
+    id 'jacoco'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile 'org.testng:testng'
+}
+
+test {
+    useTestNG() {
+        useDefaultListeners = true
+    }
+}
+
+task outputManagedCredentials{
+    doLast{
+        credentials.all{
+            project.logger.lifecycle("Credentials configured: ${it.name}")
+        }
+    }
+}
+
+check.dependsOn outputManagedCredentials
