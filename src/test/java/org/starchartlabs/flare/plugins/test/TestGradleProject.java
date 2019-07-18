@@ -62,6 +62,8 @@ public class TestGradleProject {
 
         private final Set<TestFile> testFiles;
 
+        private final Map<Path, Path> targetToSourceFiles;
+
         private final Map<String, Builder> subprojects;
 
         protected Builder(Path buildFile) {
@@ -74,6 +76,7 @@ public class TestGradleProject {
 
             javaFiles = new HashSet<>();
             testFiles = new HashSet<>();
+            targetToSourceFiles = new HashMap<>();
             subprojects = new HashMap<>();
         }
 
@@ -85,6 +88,12 @@ public class TestGradleProject {
 
         public Builder addTestFile(String packageName, String className, String targetClassQualifiedName) {
             testFiles.add(new TestFile(packageName, className, targetClassQualifiedName));
+
+            return this;
+        }
+
+        public Builder addFile(Path classpathSourcePath, Path targetPath) {
+            targetToSourceFiles.put(targetPath, classpathSourcePath);
 
             return this;
         }
@@ -128,6 +137,22 @@ public class TestGradleProject {
 
             for (TestFile file : testFiles) {
                 file.create(projectDirectory);
+            }
+
+            for (Entry<Path, Path> targetSourceFile : targetToSourceFiles.entrySet()) {
+                try (BufferedWriter writer = Files.newBufferedWriter(
+                        projectDirectory.resolve(targetSourceFile.getKey()),
+                        StandardOpenOption.CREATE)) {
+                    try (ClasspathReader reader = new ClasspathReader(targetSourceFile.getValue())) {
+                        List<String> lines = reader.lines()
+                                .collect(Collectors.toList());
+
+                        for (String line : lines) {
+                            writer.write(line);
+                            writer.newLine();
+                        }
+                    }
+                }
             }
 
             for (Entry<String, Builder> subproject : subprojects.entrySet()) {
