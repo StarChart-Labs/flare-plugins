@@ -12,3 +12,17 @@ test {
         useDefaultListeners = true
     }
 }
+
+task outputTestLogging {
+    doLast{
+        tasks.withType(Test).all {
+            project.logger.lifecycle("${it.name} Exception format: ${it.testLogging.exceptionFormat}")
+            
+            project.logger.lifecycle("${it.name} Quiet logging: ${it.testLogging.quiet.events}")
+            project.logger.lifecycle("${it.name} Info logging: ${it.testLogging.info.events}")
+            project.logger.lifecycle("${it.name} Debug logging: ${it.testLogging.debug.events}")
+        }
+    }
+}
+
+check.dependsOn outputTestLogging

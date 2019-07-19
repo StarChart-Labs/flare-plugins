@@ -91,6 +91,14 @@ public class MultiModuleLibraryPluginIntegrationTest {
                         "<class name=\"org/starchartlabs/flare/merge/coverage/reports/Main\" sourcefilename=\"Main.java\">"));
 
         Assert.assertTrue(coveredMainFile, "Coverage report missing line for expected source file");
+
+        // Check increased test logging application
+        Assert.assertTrue(result.getOutput().contains("test Exception format: FULL"));
+        Assert.assertTrue(result.getOutput().contains("test Quiet logging: [SKIPPED, FAILED]"));
+        Assert.assertTrue(result.getOutput()
+                .contains("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
+        Assert.assertTrue(result.getOutput()
+                .contains("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
     }
 
     @Test
@@ -130,6 +138,14 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
         Assert.assertTrue(coveredMainOneFile, "Coverage report missing line for expected source file MainOne");
         Assert.assertTrue(coveredMainTwoFile, "Coverage report missing line for expected source file MainTwo");
+
+        // Check increased test logging application
+        Assert.assertTrue(result.getOutput().contains("test Exception format: FULL"));
+        Assert.assertTrue(result.getOutput().contains("test Quiet logging: [SKIPPED, FAILED]"));
+        Assert.assertTrue(result.getOutput()
+                .contains("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
+        Assert.assertTrue(result.getOutput()
+                .contains("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
     }
 
 }
