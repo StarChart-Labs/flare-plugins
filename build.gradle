@@ -37,6 +37,22 @@ test {
     useTestNG() { 
         useDefaultListeners = true 
     }
+    
+    testLogging{
+        exceptionFormat 'full'
+        
+        quiet{
+            events 'failed', 'skipped'
+        }
+        
+        info{
+            events 'failed', 'skipped', 'passed', 'standard_out', 'standard_error'
+        }
+        
+        debug{
+            events 'failed', 'skipped', 'passed', 'standard_out', 'standard_error', 'started'
+        }
+    }
 }
 
 jacocoTestReport {
@@ -66,3 +82,26 @@ task checkstyleAll{}
 tasks.withType(Checkstyle).all { checkstyleTask -> checkstyleAll.dependsOn checkstyleTask }
  
 check.dependsOn checkstyleAll
+
+task sourcesJar(type: Jar) {
+    group = 'Build'
+    description = 'Creates a jar containing the source code of the project'
+
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    dependsOn tasks.classes
+}
+
+task javadocJar(type: Jar) {
+    group = 'Build'
+    description = 'Creates a jar containing the javadoc of the project'
+
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+    dependsOn tasks.javadoc
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
