@@ -1,32 +1,9 @@
 plugins {
-    id  'org.starchartlabs.flare.multi-module-library'
+    id  'org.starchartlabs.flare.increased-test-logging'
     id 'java'
-    id 'jacoco'
 }
 
-repositories {
-    jcenter()
-}
-
-dependencies {
-    testCompile 'org.testng:testng'
-}
-
-test {
-    useTestNG() {
-        useDefaultListeners = true
-    }
-}
-
-task outputManagedCredentials{
-    doLast{
-        credentials.all{
-            project.logger.lifecycle("Credentials configured: ${it.name}")
-        }
-    }
-}
-
-task outputTestLogging {
+task testPrintout {
     doLast{
         tasks.withType(Test).all {
             project.logger.lifecycle("${it.name} Exception format: ${it.testLogging.exceptionFormat}")
@@ -37,6 +14,3 @@ task outputTestLogging {
         }
     }
 }
-
-check.dependsOn outputManagedCredentials
-check.dependsOn outputTestLogging

@@ -31,6 +31,7 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
         project.allprojects(p -> {
             p.getPluginManager().apply("org.starchartlabs.flare.dependency-constraints");
             p.getPluginManager().apply("org.starchartlabs.flare.managed-credentials");
+            p.getPluginManager().apply("org.starchartlabs.flare.increased-test-logging");
 
             try {
                 DependencyConstraints dependencyConstraints = p.getExtensions().getByType(DependencyConstraints.class);
