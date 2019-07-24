@@ -68,3 +68,8 @@ Individual plug-ins used to apply these changes:
 - org.starchartlabs.flare.managed-credentials
 - org.starchartlabs.flare.merge-coverage-reports
 
+## Migrating From Previous Plug-ins
+
+StarChart Labs previously provided two libraries for Gradle plug-ins. Currently, flare-plugins replaces one of these. Migration guides are provided for the following projects:
+
+- [flare-operations-plugins](./docs/FLARE_OPERATIONS_MIGRATION.md)
