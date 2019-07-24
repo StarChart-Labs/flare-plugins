@@ -4,6 +4,8 @@ plugins {
     id 'eclipse'
     id 'jacoco'
     id 'checkstyle'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.10.0'
 }
 
 // Putting this in gradle.properties breaks the build, because this uses it's own releases
@@ -105,3 +107,62 @@ artifacts {
     archives sourcesJar
     archives javadocJar
 }
+
+// Allow local publishing for testing
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        mavenLocal()
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/StarChart-Labs/flare-plugins'
+    vcsUrl = 'https://github.com/StarChart-Labs/flare-plugins'
+    tags = [ 'operations', 'testing' ]
+}
+
+
+
+gradlePlugin {
+    plugins {
+        dependencyConstraintsPlugin {
+            id = 'org.starchartlabs.flare.dependency-constraints'
+            displayName = 'Dependency Constraints'
+            description = 'Allows applying consistent dependency constraints from a single configuration file'
+            implementationClass = 'org.starchartlabs.flare.plugins.plugin.DependencyConstraintsPlugin'
+        }
+        increasedTestLoggingPlugin {
+            id = 'org.starchartlabs.flare.increased-test-logging'
+            displayName = 'Increased Test Logging'
+            description = 'Apply a convention for more verbose test logging in Gradle test executions'
+            implementationClass = 'org.starchartlabs.flare.plugins.plugin.IncreasedTestLoggingPlugin'
+        }
+        managedCredentialsPlugin {
+            id = 'org.starchartlabs.flare.managed-credentials'
+            displayName = 'Managed Credentials'
+            description = 'Provides a configurable DSL for defining sets of credentials used within the Gradle build'
+            implementationClass = 'org.starchartlabs.flare.plugins.plugin.ManagedCredentialsPlugin'
+        }
+        mergeCoverageReportsPlugin {
+            id = 'org.starchartlabs.flare.merge-coverage-reports'
+            displayName = 'Merge Coverage Reports'
+            description = 'Adds a task which generates a single Jacoco XML report with coverage data from all sub-modules'
+            implementationClass = 'org.starchartlabs.flare.plugins.plugin.MergeCoverageReportsPlugin'
+        }
+        multiModuleLibraryPlugin {
+            id = 'org.starchartlabs.flare.multi-module-library'
+            displayName = 'Multi Module Library Conventions'
+            description = 'Configures conventions for Gradle projects building libraries with multiple modules'
+            implementationClass = 'org.starchartlabs.flare.plugins.plugin.MultiModuleLibraryPlugin'
+        }
+    }
+}
+
+
+
