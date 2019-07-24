@@ -17,3 +17,54 @@ The requirement for a copy of the license being included in distributions is ful
 ## Reporting Vulnerabilities
 
 If you discover a security vulnerability, contact the development team by e-mail at `vulnerabilities@starchartlabs.org`
+
+## Use
+
+The intended use for `flare-plugins` involves selecting a set of conventions for common uses, implemented as a single plug-in. However, individual plug-ins can still be applied if none of the current pre-defined conventions meet your use case. Instructions for each individual plug-in can be found [here](./docs/PLUGINS.md).
+
+Currently, the only pre-defined convention available is `multi-module-library`
+
+### Convention: multi-module-library
+
+The `multi-module-library` convention is intended for gradle projects which define a set of related libraries as modules of a root project. This convention assumes that the root project is present mainly for overall build configuration, and that library code is all in sub-modules. This convention can be applied by:
+
+```
+plugins {
+	id 'org.starchartlabs.flare.multi-module-library' version '0.1.0'
+}
+```
+
+or
+
+```
+buildscript {
+	repositories {
+		maven {
+			url 'https://plugins.gradle.org/m2/'
+		}
+  	}
+  
+  	dependencies {
+		classpath 'org.starchartlabs.flare:flare-plugins:0.1.0'
+  	}
+}
+
+apply plugin: 'org.starchartlabs.flare.multi-module-library'
+```
+
+Applying this convention has the following effects:
+
+- Applies a task to the root project which will create a merged Jacoco XML report in `${rootProject.buildDir}/reports/jacoco/report.xml`
+- Reads dependency versions from file `"${rootDir}/dependencies.properties"` and applies these as dependency constraints
+  - This file may have empty lines, lines starting with `#` which act as comments, or lines of the form `group:artifact:version`
+- Add a reference to credentials read from environment variables `BINTRAY_USER` and `BINTRAY_API_KEY`. These variables must be defined if the credentials are used
+  - These credentials can be referenced by `${credentials.bintray.username}` and `${credentials.bintray.password}'
+- Increases the logging level of test events in sub-modules
+
+Individual plug-ins used to apply these changes:
+
+- org.starchartlabs.flare.dependency-constraints
+- org.starchartlabs.flare.increased-test-logging
+- org.starchartlabs.flare.managed-credentials
+- org.starchartlabs.flare.merge-coverage-reports
+
