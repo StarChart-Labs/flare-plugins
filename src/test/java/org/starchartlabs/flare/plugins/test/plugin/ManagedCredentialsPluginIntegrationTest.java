@@ -6,13 +6,14 @@
  */
 package org.starchartlabs.flare.plugins.test.plugin;
 
-import java.io.File;
-import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.starchartlabs.flare.plugins.test.IntegrationTestListener;
+import org.starchartlabs.flare.plugins.test.TestGradleProject;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
@@ -21,14 +22,18 @@ import org.testng.annotations.Test;
 @Listeners(value = { IntegrationTestListener.class })
 public class ManagedCredentialsPluginIntegrationTest {
 
-    private File testProjectDirectory;
+    private static final Path BUILD_FILE_DIRECTORY = Paths.get("org", "starchartlabs", "flare", "plugins", "test",
+            "managed", "credentials");
+
+    private static final Path BUILD_FILE = BUILD_FILE_DIRECTORY.resolve("build.gradle");
+
+    private Path projectPath;
 
     @BeforeClass
     public void setup() throws Exception {
-        URL directory = this.getClass().getClassLoader()
-                .getResource("org/starchartlabs/flare/plugins/test/managed/credentials");
-
-        testProjectDirectory = new File(directory.toURI());
+        projectPath = TestGradleProject.builder(BUILD_FILE)
+                .build()
+                .getProjectDirectory();
     }
 
     // TODO romeara Try to figure out a way to test the environment variable scenario
@@ -40,7 +45,7 @@ public class ManagedCredentialsPluginIntegrationTest {
 
         BuildResult result = GradleRunner.create()
                 .withPluginClasspath()
-                .withProjectDir(testProjectDirectory)
+                .withProjectDir(projectPath.toFile())
                 .withArguments("credentialsPrintout", "-Dproperty_1=" + expectedUsername,
                         "-Dproperty_2=" + expectedPassword)
                 .withGradleVersion("5.0")
@@ -59,7 +64,7 @@ public class ManagedCredentialsPluginIntegrationTest {
 
         BuildResult result = GradleRunner.create()
                 .withPluginClasspath()
-                .withProjectDir(testProjectDirectory)
+                .withProjectDir(projectPath.toFile())
                 .withArguments("credentialsPrintout")
                 .withGradleVersion("5.0")
                 .build();
