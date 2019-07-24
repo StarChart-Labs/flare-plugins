@@ -6,6 +6,7 @@
  */
 package org.starchartlabs.flare.plugins.plugin;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.gradle.api.GradleException;
@@ -33,12 +34,16 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
             p.getPluginManager().apply("org.starchartlabs.flare.managed-credentials");
             p.getPluginManager().apply("org.starchartlabs.flare.increased-test-logging");
 
-            try {
-                DependencyConstraints dependencyConstraints = p.getExtensions().getByType(DependencyConstraints.class);
-                dependencyConstraints
-                .file(project.file(project.getProjectDir().toPath().resolve("dependencies.properties")));
-            } catch (IOException e) {
-                throw new GradleException("Error loading dependency properties", e);
+            File dependenciesFile = project.file(project.getProjectDir().toPath().resolve("dependencies.properties"));
+
+            if (dependenciesFile.exists()) {
+                try {
+                    DependencyConstraints dependencyConstraints = p.getExtensions()
+                            .getByType(DependencyConstraints.class);
+                    dependencyConstraints.file(dependenciesFile);
+                } catch (IOException e) {
+                    throw new GradleException("Error loading dependency properties", e);
+                }
             }
 
             @SuppressWarnings("unchecked")
