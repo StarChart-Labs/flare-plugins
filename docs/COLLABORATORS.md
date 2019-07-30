@@ -2,7 +2,7 @@
 
 ## One-time Setup
 
-TO publish to the Gradle plug-in portal, first you must [setup an account](https://guides.gradle.org/publishing-plugins-to-gradle-plugin-portal/#create_an_account_on_the_gradle_plugin_portal)
+To publish to the Gradle plug-in portal, first you must [setup an account](https://guides.gradle.org/publishing-plugins-to-gradle-plugin-portal/#create_an_account_on_the_gradle_plugin_portal)
 
 ## Releasing
 
