@@ -26,31 +26,7 @@ Currently, the only pre-defined convention available is `multi-module-library`
 
 ### Convention: multi-module-library
 
-The `multi-module-library` convention is intended for gradle projects which define a set of related libraries as modules of a root project. This convention assumes that the root project is present mainly for overall build configuration, and that library code is all in sub-modules. This convention can be applied by:
-
-```
-plugins {
-	id 'org.starchartlabs.flare.multi-module-library' version '0.1.0'
-}
-```
-
-or
-
-```
-buildscript {
-	repositories {
-		maven {
-			url 'https://plugins.gradle.org/m2/'
-		}
-  	}
-  
-  	dependencies {
-		classpath 'org.starchartlabs.flare:flare-plugins:0.1.0'
-  	}
-}
-
-apply plugin: 'org.starchartlabs.flare.multi-module-library'
-```
+The `multi-module-library` convention is intended for gradle projects which define a set of related libraries as modules of a root project. This convention assumes that the root project is present mainly for overall build configuration, and that library code is all in sub-modules. This convention can be applied via the configuration documented in the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/org.starchartlabs.flare.multi-module-library)
 
 Applying this convention has the following effects:
 
