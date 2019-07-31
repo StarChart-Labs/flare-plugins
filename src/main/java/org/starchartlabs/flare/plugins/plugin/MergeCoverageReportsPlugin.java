@@ -7,9 +7,6 @@
 package org.starchartlabs.flare.plugins.plugin;
 
 import java.io.File;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -28,9 +25,6 @@ import org.gradle.testing.jacoco.tasks.JacocoReport;
 public class MergeCoverageReportsPlugin implements Plugin<Project> {
 
     private static final String TASK_NAME = "mergeCoverageReports";
-
-    private static final Set<String> JAVA_PLUGINS = Stream.of("java", "java-library")
-            .collect(Collectors.toSet());
 
     @Override
     public void apply(Project project) {
@@ -80,10 +74,8 @@ public class MergeCoverageReportsPlugin implements Plugin<Project> {
     private void configureProjects(Project rootProject, JacocoReport task) {
         // Apply to root project for single-module cases, and sub-projects, for multi-module cases
         rootProject.getAllprojects().forEach(project -> {
-            JAVA_PLUGINS.forEach(javaPluginId -> {
-                project.getPluginManager().withPlugin(javaPluginId, javaPlugin -> {
-                    configureJava(project, task);
-                });
+            project.getPluginManager().withPlugin("java", javaPlugin -> {
+                configureJava(project, task);
             });
         });
     }

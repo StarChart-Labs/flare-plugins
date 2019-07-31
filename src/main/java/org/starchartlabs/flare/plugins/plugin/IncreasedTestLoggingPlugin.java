@@ -6,10 +6,6 @@
  */
 package org.starchartlabs.flare.plugins.plugin;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskCollection;
@@ -25,34 +21,29 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent;
  */
 public class IncreasedTestLoggingPlugin implements Plugin<Project> {
 
-    private static final Set<String> JAVA_PLUGINS = Stream.of("java", "java-library")
-            .collect(Collectors.toSet());
-
     @Override
     public void apply(Project project) {
-        JAVA_PLUGINS.forEach(javaPlugin -> {
-            project.getPluginManager().withPlugin(javaPlugin, plugin -> {
-                TaskCollection<Test> testTasks = project.getTasks().withType(Test.class);
+        project.getPluginManager().withPlugin("java", plugin -> {
+            TaskCollection<Test> testTasks = project.getTasks().withType(Test.class);
 
-                testTasks.forEach(it -> {
-                    it.getTestLogging().setExceptionFormat(TestExceptionFormat.FULL);
+            testTasks.forEach(it -> {
+                it.getTestLogging().setExceptionFormat(TestExceptionFormat.FULL);
 
-                    it.getTestLogging().getQuiet().events(TestLogEvent.FAILED,
-                            TestLogEvent.SKIPPED);
+                it.getTestLogging().getQuiet().events(TestLogEvent.FAILED,
+                        TestLogEvent.SKIPPED);
 
-                    it.getTestLogging().getInfo().events(TestLogEvent.FAILED,
-                            TestLogEvent.SKIPPED,
-                            TestLogEvent.PASSED,
-                            TestLogEvent.STANDARD_OUT,
-                            TestLogEvent.STANDARD_ERROR);
+                it.getTestLogging().getInfo().events(TestLogEvent.FAILED,
+                        TestLogEvent.SKIPPED,
+                        TestLogEvent.PASSED,
+                        TestLogEvent.STANDARD_OUT,
+                        TestLogEvent.STANDARD_ERROR);
 
-                    it.getTestLogging().getDebug().events(TestLogEvent.FAILED,
-                            TestLogEvent.SKIPPED,
-                            TestLogEvent.PASSED,
-                            TestLogEvent.STANDARD_OUT,
-                            TestLogEvent.STANDARD_ERROR,
-                            TestLogEvent.STARTED);
-                });
+                it.getTestLogging().getDebug().events(TestLogEvent.FAILED,
+                        TestLogEvent.SKIPPED,
+                        TestLogEvent.PASSED,
+                        TestLogEvent.STANDARD_OUT,
+                        TestLogEvent.STANDARD_ERROR,
+                        TestLogEvent.STARTED);
             });
         });
     }
