@@ -82,4 +82,4 @@ The merge-coverage-reports plug-in adds a task which generates a single XML Jaco
 
 The source-jars plug-in adds two tasks of type `Jar` - `sourcesJar`, which generates a jar file with the source files of the project, and `javadocJar`, which generates a jar file with the javadoc files of the project. These tasks are also added to the `archives` artifact configuration of the project.
 
-These jars are intended open-source projects to upload alongside binary artifacts to allow developers to trace through the associated code paths when debugging, and other development uses.
+These jars are intended to be uploaded alongside binary artifacts for open-source projects. They allow developers to trace through the associated code paths when debugging, and to view associated Javadoc documentation within their IDE.
