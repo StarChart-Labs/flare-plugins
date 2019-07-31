@@ -33,6 +33,7 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
             p.getPluginManager().apply("org.starchartlabs.flare.dependency-constraints");
             p.getPluginManager().apply("org.starchartlabs.flare.managed-credentials");
             p.getPluginManager().apply("org.starchartlabs.flare.increased-test-logging");
+            p.getPluginManager().apply("org.starchartlabs.flare.source-jars");
 
             File dependenciesFile = project.file(project.getProjectDir().toPath().resolve("dependencies.properties"));
 

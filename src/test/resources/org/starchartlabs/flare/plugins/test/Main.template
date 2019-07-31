@@ -6,6 +6,9 @@
  */
 package ${package};
 
+/**
+ * Java DOC
+ */
 public class ${class} {
 
 	public void method(){

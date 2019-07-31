@@ -77,3 +77,9 @@ Created credentials may be reference via `${credentials.name1.username}` and `${
 ## org.starchartlabs.flare.merge-coverage-reports
 
 The merge-coverage-reports plug-in adds a task which generates a single XML Jacoco report which includes coverage information from reports in all sub-modules. The added task (`mergeCoverageReports`), depends on the `test` tasks of all sub-modules, and is added as a dependency of the `check` task of the root project
+
+## org.starchartlabs.flare.source-jars
+
+The source-jars plug-in adds two tasks or type `Jar` - `sourcesJar`, which generates a jar file with the source files of the project, and `javadocJar`, which generates a jar file with the javadoc files of the project. These tasks are also added to the `archives` artifact configuration of the project.
+
+These jars are intended open-source projects to upload alongside binary artifacts to allow developers to trace through the associated code paths when debugging, and other development uses.

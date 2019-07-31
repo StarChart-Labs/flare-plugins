@@ -19,7 +19,9 @@ public class MergeCoverageReportsPluginTest {
 
     @Test
     public void singleProjectWithoutJacoco() throws Exception {
-        Project project = ProjectBuilder.builder().build();
+        Project project = ProjectBuilder.builder()
+                .withName("singleProjectWithoutJacoco")
+                .build();
         project.getPluginManager().apply(PLUGIN_ID);
 
         Task task = project.getTasks().findByName("mergeCoverageReports");
@@ -29,7 +31,9 @@ public class MergeCoverageReportsPluginTest {
 
     @Test
     public void singleProjectJacoco() throws Exception {
-        Project project = ProjectBuilder.builder().build();
+        Project project = ProjectBuilder.builder()
+                .withName("singleProjectJacoco")
+                .build();
         project.getPluginManager().apply(PLUGIN_ID);
         project.getPluginManager().apply("jacoco");
 
@@ -40,7 +44,9 @@ public class MergeCoverageReportsPluginTest {
 
     @Test
     public void singleProjectJacocoAndJava() throws Exception {
-        Project project = ProjectBuilder.builder().build();
+        Project project = ProjectBuilder.builder()
+                .withName("singleProjectJacocoAndJava")
+                .build();
         project.getPluginManager().apply(PLUGIN_ID);
         project.getPluginManager().apply("jacoco");
         project.getPluginManager().apply("java");
@@ -55,7 +61,9 @@ public class MergeCoverageReportsPluginTest {
 
     @Test
     public void singleProjectJacocoAndJavaLibrary() throws Exception {
-        Project project = ProjectBuilder.builder().build();
+        Project project = ProjectBuilder.builder()
+                .withName("singleProjectJacocoAndJavaLibrary")
+                .build();
         project.getPluginManager().apply(PLUGIN_ID);
         project.getPluginManager().apply("jacoco");
         project.getPluginManager().apply("java-library");
@@ -70,15 +78,17 @@ public class MergeCoverageReportsPluginTest {
 
     @Test
     public void multiModuleProjectWithoutJacoco() throws Exception {
-        Project rootProject = ProjectBuilder.builder().build();
+        Project rootProject = ProjectBuilder.builder()
+                .withName("multiModuleProjectWithoutJacoco")
+                .build();
         rootProject.getPluginManager().apply(PLUGIN_ID);
 
         ProjectBuilder.builder()
-        .withName("subProject1")
+                .withName("multiModuleProjectWithoutJacoco-subProject1")
         .withParent(rootProject)
         .build();
         ProjectBuilder.builder()
-        .withName("subProject2")
+                .withName("multiModuleProjectWithoutJacoco-subProject2")
         .withParent(rootProject)
         .build();
 

@@ -36,6 +36,7 @@ Applying this convention has the following effects:
 - Add a reference to credentials read from environment variables `BINTRAY_USER` and `BINTRAY_API_KEY`. These variables must be defined if the credentials are used
   - These credentials can be referenced by `${credentials.bintray.username}` and `${credentials.bintray.password}'
 - Increases the logging level of test events in sub-modules
+- Adds tasks to generate sources and javadoc jars, and adds them to the project's acrhives artifact configuration
 
 Individual plug-ins used to apply these changes:
 
@@ -43,9 +44,11 @@ Individual plug-ins used to apply these changes:
 - org.starchartlabs.flare.increased-test-logging
 - org.starchartlabs.flare.managed-credentials
 - org.starchartlabs.flare.merge-coverage-reports
+- org.starchartlabs.flare.source-jars
 
 ## Migrating From Previous Plug-ins
 
-StarChart Labs previously provided two libraries for Gradle plug-ins. Currently, flare-plugins replaces one of these. Migration guides are provided for the following projects:
+StarChart Labs previously provided two libraries for Gradle plug-ins. Migration guides are provided for the following projects:
 
 - [flare-operations-plugins](./docs/FLARE_OPERATIONS_MIGRATION.md)
+- [flare-publishing-plugins](./docs/FLARE_PUBLISHING_MIGRATION.md)

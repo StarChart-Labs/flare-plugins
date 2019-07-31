@@ -6,9 +6,16 @@
  */
 package org.starchartlabs.flare.plugins.test.plugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
@@ -48,14 +55,14 @@ public class MultiModuleLibraryPluginIntegrationTest {
         multiModuleProjectPath = TestGradleProject.builder(ROOT_PROJECT_BUILD_FILE)
                 .addFile(DEPENDENCIES_FILE, Paths.get("dependencies.properties"))
                 .subProject("one", SUB_PROJECT_BUILD_FILE)
-                .addJavaFile("org.starchartlabs.flare.merge.coverage.reports.one", "MainOne")
-                .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports.one", "MainOneTest",
-                        "org.starchartlabs.flare.merge.coverage.reports.one.MainOne")
+                .addJavaFile("org.starchartlabs.flare.merge.coverage.reports.one", "Mainone")
+                .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports.one", "MainoneTest",
+                        "org.starchartlabs.flare.merge.coverage.reports.one.Mainone")
                 .and()
                 .subProject("two", SUB_PROJECT_BUILD_FILE)
-                .addJavaFile("org.starchartlabs.flare.merge.coverage.reports.two", "MainTwo")
-                .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports.two", "MainTwoTest",
-                        "org.starchartlabs.flare.merge.coverage.reports.two.MainTwo")
+                .addJavaFile("org.starchartlabs.flare.merge.coverage.reports.two", "Maintwo")
+                .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports.two", "MaintwoTest",
+                        "org.starchartlabs.flare.merge.coverage.reports.two.Maintwo")
                 .and()
                 .build()
                 .getProjectDirectory();
@@ -66,7 +73,7 @@ public class MultiModuleLibraryPluginIntegrationTest {
         BuildResult result = GradleRunner.create()
                 .withPluginClasspath()
                 .withProjectDir(singleProjectPath.toFile())
-                .withArguments("check", "--info")
+                .withArguments("build", "--info")
                 .withGradleVersion("5.0")
                 .build();
 
@@ -99,6 +106,15 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 .contains("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
         Assert.assertTrue(result.getOutput()
                 .contains("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
+
+        // Check source/javadoc jar tasks
+        Path sourcesJar = singleProjectPath.resolve("build").resolve("libs")
+                .resolve(singleProjectPath.getFileName().toString() + "-sources.jar");
+        Path javadocJar = singleProjectPath.resolve("build").resolve("libs")
+                .resolve(singleProjectPath.getFileName().toString() + "-javadoc.jar");
+
+        verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.java");
+        verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.html");
     }
 
     @Test
@@ -106,7 +122,7 @@ public class MultiModuleLibraryPluginIntegrationTest {
         BuildResult result = GradleRunner.create()
                 .withPluginClasspath()
                 .withProjectDir(multiModuleProjectPath.toFile())
-                .withArguments("check", "--info")
+                .withArguments("build", "--info")
                 .withGradleVersion("5.0")
                 .build();
 
@@ -130,14 +146,14 @@ public class MultiModuleLibraryPluginIntegrationTest {
         boolean coveredMainOneFile = Files.lines(reportOutput)
                 .map(String::trim)
                 .anyMatch(line -> line.contains(
-                        "<class name=\"org/starchartlabs/flare/merge/coverage/reports/one/MainOne\" sourcefilename=\"MainOne.java\">"));
+                        "<class name=\"org/starchartlabs/flare/merge/coverage/reports/one/Mainone\" sourcefilename=\"Mainone.java\">"));
         boolean coveredMainTwoFile = Files.lines(reportOutput)
                 .map(String::trim)
                 .anyMatch(line -> line.contains(
-                        "<class name=\"org/starchartlabs/flare/merge/coverage/reports/two/MainTwo\" sourcefilename=\"MainTwo.java\">"));
+                        "<class name=\"org/starchartlabs/flare/merge/coverage/reports/two/Maintwo\" sourcefilename=\"Maintwo.java\">"));
 
-        Assert.assertTrue(coveredMainOneFile, "Coverage report missing line for expected source file MainOne");
-        Assert.assertTrue(coveredMainTwoFile, "Coverage report missing line for expected source file MainTwo");
+        Assert.assertTrue(coveredMainOneFile, "Coverage report missing line for expected source file Mainone");
+        Assert.assertTrue(coveredMainTwoFile, "Coverage report missing line for expected source file Maintwo");
 
         // Check increased test logging application
         Assert.assertTrue(result.getOutput().contains("test Exception format: FULL"));
@@ -146,6 +162,31 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 .contains("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
         Assert.assertTrue(result.getOutput()
                 .contains("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
+
+        // Check source/javadoc jar tasks
+        for (String subProjectName : Arrays.asList("one", "two")) {
+            Path sourcesJar = multiModuleProjectPath.resolve(subProjectName).resolve("build").resolve("libs")
+                    .resolve(subProjectName + "-sources.jar");
+            Path javadocJar = multiModuleProjectPath.resolve(subProjectName).resolve("build").resolve("libs")
+                    .resolve(subProjectName + "-javadoc.jar");
+
+            verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/" + subProjectName + "/Main"
+                    + subProjectName + ".java");
+            verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/" + subProjectName + "/Main"
+                    + subProjectName + ".html");
+        }
+    }
+
+    private void verifyFile(File archiveFile, String expectedFilePath) throws IOException {
+        boolean found = false;
+
+        try (JarFile jarFile = new JarFile(archiveFile)) {
+            found = Collections.list(jarFile.entries()).stream()
+                    .map(JarEntry::getName)
+                    .anyMatch(name -> Objects.equals(name, expectedFilePath));
+        }
+
+        Assert.assertTrue(found, "Did not find expected file " + expectedFilePath);
     }
 
 }

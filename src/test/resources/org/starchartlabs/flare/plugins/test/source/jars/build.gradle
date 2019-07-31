@@ -1,0 +1,4 @@
+plugins {
+    id  'org.starchartlabs.flare.source-jars'
+    id 'java'
+}

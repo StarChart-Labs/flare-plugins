@@ -155,6 +155,12 @@ gradlePlugin {
             description = 'Adds a task which generates a single Jacoco XML report with coverage data from all sub-modules'
             implementationClass = 'org.starchartlabs.flare.plugins.plugin.MergeCoverageReportsPlugin'
         }
+        sourceJarsPlugin {
+            id = 'org.starchartlabs.flare.source-jars'
+            displayName = 'Source Jars'
+            description = 'Adds Jar tasks for generating source and JavaDoc jars for open-source projects'
+            implementationClass = 'org.starchartlabs.flare.plugins.plugin.SourceJarsPlugin'
+        }
         multiModuleLibraryPlugin {
             id = 'org.starchartlabs.flare.multi-module-library'
             displayName = 'Multi Module Library Conventions'
