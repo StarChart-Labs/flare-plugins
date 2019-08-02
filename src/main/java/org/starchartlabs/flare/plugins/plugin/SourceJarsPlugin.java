@@ -8,7 +8,10 @@ package org.starchartlabs.flare.plugins.plugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.javadoc.Javadoc;
@@ -32,16 +35,19 @@ public class SourceJarsPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.getPluginManager().withPlugin("java", plugin -> {
+        project.getPluginManager().withPlugin("java", javaPlugin -> {
             Jar sourcesJarTask = project.getTasks().create(SOURCE_JAR_TASK_NAME, Jar.class);
             Jar javadocJarTask = project.getTasks().create(JAVADOC_JAR_TASK_NAME, Jar.class);
 
             configureSourcesJarTask(project, sourcesJarTask);
-
             configureJavadocJarTask(project, javadocJarTask);
 
             project.getArtifacts().add("archives", sourcesJarTask);
             project.getArtifacts().add("archives", javadocJarTask);
+
+            project.getPluginManager().withPlugin("maven-publish", mavenPublishPlugin -> {
+                configureMavenPublish(project, sourcesJarTask, javadocJarTask);
+            });
         });
     }
 
@@ -67,6 +73,20 @@ public class SourceJarsPlugin implements Plugin<Project> {
         javadocJarTask.dependsOn(javadocTask);
 
         javadocJarTask.from(javadocTask.getDestinationDir());
+    }
+
+    private void configureMavenPublish(Project project, Task sourcesJarTask, Task javadocJarTask) {
+        // Find all MavenPublications, and add a correction to compile dependencies to be of compile scope
+        PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
+
+        publishing.getPublications()
+        .withType(MavenPublication.class)
+        .all(publication -> configureMavenPublication(publication, sourcesJarTask, javadocJarTask));
+    }
+
+    private void configureMavenPublication(MavenPublication publication, Task sourcesJarTask, Task javadocJarTask) {
+        publication.artifact(sourcesJarTask, ma -> ma.setClassifier("sources"));
+        publication.artifact(javadocJarTask, ma -> ma.setClassifier("javadoc"));
     }
 
 }

@@ -31,13 +31,24 @@ public class SourceJarsPluginIntegrationTest {
     private static final Path BUILD_FILE_DIRECTORY = Paths.get("org", "starchartlabs", "flare", "plugins", "test",
             "source", "jars");
 
-    private static final Path BUILD_FILE = BUILD_FILE_DIRECTORY.resolve("build.gradle");
+    private static final Path SIMPLE_BUILD_FILE = BUILD_FILE_DIRECTORY.resolve("simpleBuild.gradle");
 
-    private Path projectPath;
+    private static final Path MAVEN_PUBLISH_BUILD_FILE = BUILD_FILE_DIRECTORY.resolve("mavenPublishBuild.gradle");
+
+    private Path simpleProjectPath;
+
+    private Path mavenPublishProjectPath;
 
     @BeforeClass
     public void setup() throws Exception {
-        projectPath = TestGradleProject.builder(BUILD_FILE)
+        simpleProjectPath = TestGradleProject.builder(SIMPLE_BUILD_FILE)
+                .addJavaFile("org.starchartlabs.flare.merge.coverage.reports", "Main")
+                .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports", "MainTest",
+                        "org.starchartlabs.flare.merge.coverage.reports.Main")
+                .build()
+                .getProjectDirectory();
+
+        mavenPublishProjectPath = TestGradleProject.builder(MAVEN_PUBLISH_BUILD_FILE)
                 .addJavaFile("org.starchartlabs.flare.merge.coverage.reports", "Main")
                 .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports", "MainTest",
                         "org.starchartlabs.flare.merge.coverage.reports.Main")
@@ -46,24 +57,59 @@ public class SourceJarsPluginIntegrationTest {
     }
 
     @Test
-    public void applyPlugin() throws Exception {
+    public void applyPluginSimpleProject() throws Exception {
         BuildResult result = GradleRunner.create()
                 .withPluginClasspath()
-                .withProjectDir(projectPath.toFile())
+                .withProjectDir(simpleProjectPath.toFile())
                 .withArguments("assemble")
                 .withGradleVersion("5.0")
                 .build();
 
         // Verify Jar contains expected source or JavaDoc file(s)
-        Path sourcesJar = projectPath.resolve("build").resolve("libs")
-                .resolve(projectPath.getFileName().toString() + "-sources.jar");
-        Path javadocJar = projectPath.resolve("build").resolve("libs")
-                .resolve(projectPath.getFileName().toString() + "-javadoc.jar");
+        Path sourcesJar = simpleProjectPath.resolve("build").resolve("libs")
+                .resolve(simpleProjectPath.getFileName().toString() + "-sources.jar");
+        Path javadocJar = simpleProjectPath.resolve("build").resolve("libs")
+                .resolve(simpleProjectPath.getFileName().toString() + "-javadoc.jar");
 
         verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.java");
         verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.html");
 
         TaskOutcome outcome = result.task(":assemble").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+
+        outcome = result.task(":sourcesJar").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+
+        outcome = result.task(":javadocJar").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+    }
+
+    @Test
+    public void applyPluginMavenPublishProject() throws Exception {
+        BuildResult result = GradleRunner.create()
+                .withPluginClasspath()
+                .withProjectDir(mavenPublishProjectPath.toFile())
+                .withArguments("assemble", "outputMavenArtifacts")
+                .withGradleVersion("5.0")
+                .build();
+
+        // Verify Jar contains expected source or JavaDoc file(s)
+        Path sourcesJar = mavenPublishProjectPath.resolve("build").resolve("libs")
+                .resolve(mavenPublishProjectPath.getFileName().toString() + "-sources.jar");
+        Path javadocJar = mavenPublishProjectPath.resolve("build").resolve("libs")
+                .resolve(mavenPublishProjectPath.getFileName().toString() + "-javadoc.jar");
+
+        verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.java");
+        verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.html");
+
+        // Verify artifact output
+        Assert.assertTrue(result.getOutput().contains("Artifact Verification: maven:sources"));
+        Assert.assertTrue(result.getOutput().contains("Artifact Verification: maven:javadoc"));
+
+        TaskOutcome outcome = result.task(":assemble").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+
+        outcome = result.task(":outputMavenArtifacts").getOutcome();
         Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
 
         outcome = result.task(":sourcesJar").getOutcome();

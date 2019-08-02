@@ -115,6 +115,9 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
         verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.java");
         verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.html");
+
+        Assert.assertTrue(result.getOutput().contains("Artifact Verification: maven:sources"));
+        Assert.assertTrue(result.getOutput().contains("Artifact Verification: maven:javadoc"));
     }
 
     @Test
@@ -174,6 +177,11 @@ public class MultiModuleLibraryPluginIntegrationTest {
                     + subProjectName + ".java");
             verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/" + subProjectName + "/Main"
                     + subProjectName + ".html");
+
+            Assert.assertTrue(
+                    result.getOutput().contains("Artifact Verification: " + subProjectName + ":maven:sources"));
+            Assert.assertTrue(
+                    result.getOutput().contains("Artifact Verification: " + subProjectName + ":maven:javadoc"));
         }
     }
 

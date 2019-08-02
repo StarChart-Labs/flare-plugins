@@ -2,6 +2,7 @@ plugins {
     id  'org.starchartlabs.flare.multi-module-library'
     id 'java'
     id 'jacoco'
+    id 'maven-publish'
 }
 
 repositories {
@@ -16,6 +17,18 @@ test {
     useTestNG() {
         useDefaultListeners = true
     }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
 }
 
 task outputManagedCredentials{
@@ -38,5 +51,17 @@ task outputTestLogging {
     }
 }
 
+task outputMavenArtifacts {
+    doLast {
+        publishing.publications.each { publication ->
+            publication.artifacts.withType(MavenArtifact.class) { artifact ->
+                project.logger.lifecycle("Artifact Verification: ${publication.name}:${artifact.classifier}")
+            }
+            
+        }
+    }
+}
+
 check.dependsOn outputManagedCredentials
 check.dependsOn outputTestLogging
+check.dependsOn outputMavenArtifacts
