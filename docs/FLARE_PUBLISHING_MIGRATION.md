@@ -7,3 +7,7 @@ It is recommended that users evaluate if one of the pre-defined conventions fits
 ## org.starchartlabs.flare.source-jars
 
 No change aside from switch the imported library is required - the plug-in ID is unchanged
+
+## org.starchartlabs.flare.pom-source-jar-artifacts
+
+The functionality of the `pom-source-jar-artifacts` plug-in has been combined with the `source-jars` plug-in, and will be conditionally applied if the `maven-publish` plug-in is used

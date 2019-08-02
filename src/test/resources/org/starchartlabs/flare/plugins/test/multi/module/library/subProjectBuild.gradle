@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'jacoco'
+    id 'maven-publish'
 }
 
 dependencies {
@@ -10,6 +11,29 @@ dependencies {
 test {
     useTestNG() {
         useDefaultListeners = true
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+}
+
+task outputMavenArtifacts {
+    doLast {
+        publishing.publications.each { publication ->
+            publication.artifacts.withType(MavenArtifact.class) { artifact ->
+                project.logger.lifecycle("Artifact Verification: ${project.name}:${publication.name}:${artifact.classifier}")
+            }
+            
+        }
     }
 }
 
@@ -26,3 +50,4 @@ task outputTestLogging {
 }
 
 check.dependsOn outputTestLogging
+check.dependsOn outputMavenArtifacts

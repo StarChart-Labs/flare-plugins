@@ -1,0 +1,28 @@
+plugins {
+    id  'org.starchartlabs.flare.source-jars'
+    id 'java'
+    id 'maven-publish'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+}
+
+task outputMavenArtifacts {
+    doLast {
+        publishing.publications.each { publication ->
+            publication.artifacts.withType(MavenArtifact.class) { artifact ->
+                project.logger.lifecycle("Artifact Verification: ${publication.name}:${artifact.classifier}")
+            }
+            
+        }
+    }
+}
