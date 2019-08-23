@@ -7,14 +7,13 @@
 package org.starchartlabs.flare.plugins.plugin;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.starchartlabs.flare.plugins.model.CredentialSet;
 import org.starchartlabs.flare.plugins.model.DependencyConstraints;
+import org.starchartlabs.flare.plugins.model.ProjectMetaData;
 
 /**
  * Plug-in that applies all Flare plug-ins applicable to StarChart Labs multi-module library configurations, and sets
@@ -34,17 +33,25 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
             p.getPluginManager().apply("org.starchartlabs.flare.managed-credentials");
             p.getPluginManager().apply("org.starchartlabs.flare.increased-test-logging");
             p.getPluginManager().apply("org.starchartlabs.flare.source-jars");
+            p.getPluginManager().apply("org.starchartlabs.flare.metadata-base");
+
+            DependencyConstraints dependencyConstraints = p.getExtensions().getByType(DependencyConstraints.class);
+            ProjectMetaData projectMetaData = p.getExtensions().getByType(ProjectMetaData.class);
 
             File dependenciesFile = project.file(project.getProjectDir().toPath().resolve("dependencies.properties"));
+            File developersFile = project.file(project.getProjectDir().toPath().resolve("developers.properties"));
+            File contributorsFile = project.file(project.getProjectDir().toPath().resolve("contributors.properties"));
 
             if (dependenciesFile.exists()) {
-                try {
-                    DependencyConstraints dependencyConstraints = p.getExtensions()
-                            .getByType(DependencyConstraints.class);
-                    dependencyConstraints.file(dependenciesFile);
-                } catch (IOException e) {
-                    throw new GradleException("Error loading dependency properties", e);
-                }
+                dependencyConstraints.file(dependenciesFile);
+            }
+
+            if (developersFile.exists()) {
+                projectMetaData.github(gh -> gh.developers(developersFile));
+            }
+
+            if (contributorsFile.exists()) {
+                projectMetaData.github(gh -> gh.contributors(contributorsFile));
             }
 
             @SuppressWarnings("unchecked")

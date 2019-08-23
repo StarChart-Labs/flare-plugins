@@ -37,6 +37,9 @@ Applying this convention has the following effects:
   - These credentials can be referenced by `${credentials.bintray.username}` and `${credentials.bintray.password}'
 - Increases the logging level of test events in sub-modules
 - Adds tasks to generate sources and javadoc jars, and adds them to the project's acrhives artifact configuration
+- Adds DSL for configuration project meta data
+- Loads developers into project meta data from file `"${rootDir}/developers.properties"`, if it exists
+- Loads contributors into project meta data from file `"${rootDir}/contributors.properties"`, if it exists
 
 Individual plug-ins used to apply these changes:
 
@@ -45,6 +48,7 @@ Individual plug-ins used to apply these changes:
 - org.starchartlabs.flare.managed-credentials
 - org.starchartlabs.flare.merge-coverage-reports
 - org.starchartlabs.flare.source-jars
+- org.starchartlabs.flare.metadata-base
 
 ## Migrating From Previous Plug-ins
 

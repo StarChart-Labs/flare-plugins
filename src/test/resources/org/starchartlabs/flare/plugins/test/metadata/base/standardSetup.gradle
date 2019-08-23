@@ -1,0 +1,50 @@
+plugins {
+    id  'org.starchartlabs.flare.metadata-base'
+}
+
+projectMetaData{
+    url = 'http://url'
+    
+    scm {
+        vcsUrl = 'http://scm/url'
+        connection = 'scm/connection'
+        developerConnection = 'scm/developerConnection'
+    }
+    
+    developers {
+        developer 'developer/id', 'developer/name', 'developer/url'
+    }
+    
+    contributors {
+        contributor 'contributor/name', 'contributor/url'
+    }
+    
+    licenses {
+        license 'license/name', 'license/tag', 'license/url', 'license/distribution'
+        apache2()
+        mit 'mit/distribution'
+        epl 'epl/distribution'
+    }
+}
+
+task metaDataPrintout {
+    doLast{
+        project.logger.lifecycle("url: ${projectMetaData.url}")
+        
+        project.logger.lifecycle("scm.vcsUrl: ${projectMetaData.scm.vcsUrl}")
+        project.logger.lifecycle("scm.connection: ${projectMetaData.scm.connection}")
+        project.logger.lifecycle("scm.developerConnection: ${projectMetaData.scm.developerConnection}")
+        
+        projectMetaData.developers.each { developer ->
+            project.logger.lifecycle("developer: ${developer.id}:${developer.name}:${developer.url}")
+        }
+        
+        projectMetaData.contributors.each { contributor ->
+            project.logger.lifecycle("contributor: ${contributor.name}:${contributor.url}")
+        }
+        
+        projectMetaData.licenses.each { license ->
+            project.logger.lifecycle("license: ${license.name}:${license.tag}:${license.url}:${license.distribution}")
+        }
+    }
+}

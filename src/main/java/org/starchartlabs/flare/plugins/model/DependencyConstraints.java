@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.DependencyConstraint;
 import org.gradle.api.internal.artifacts.dependencies.DependencyConstraintInternal;
@@ -54,25 +55,27 @@ public class DependencyConstraints {
      * @param file
      *            External files to read constraints from
      * @return This constraints object
-     * @throws IOException
-     *             If there is an error reading the file
      * @since 0.1.0
      */
-    public DependencyConstraints file(File file) throws IOException {
+    public DependencyConstraints file(File file) {
         Objects.requireNonNull(file);
         Preconditions.checkArgument(file.exists(),
                 () -> Strings.format("Constraint file at %s does not exist", file.toPath().toString()));
 
-        Set<String> constraints = getArtifactConstraints(file);
+        try {
+            Set<String> constraints = getArtifactConstraints(file);
 
-        project.getConfigurations().all(configuration -> {
-            constraints.forEach(gav -> {
-                project.getDependencies().getConstraints()
-                .add(configuration.getName(), gav, this::configureConstraint);
+            project.getConfigurations().all(configuration -> {
+                constraints.forEach(gav -> {
+                    project.getDependencies().getConstraints().add(configuration.getName(), gav,
+                            this::configureConstraint);
 
-                project.getLogger().info("Applied {} dependency constraint: {}", configuration, gav);
+                    project.getLogger().info("Applied {} dependency constraint: {}", configuration, gav);
+                });
             });
-        });
+        } catch (IOException e) {
+            throw new GradleException("Error loading dependency properties", e);
+        }
 
         return this;
     }

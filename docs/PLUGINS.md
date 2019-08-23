@@ -83,3 +83,66 @@ The merge-coverage-reports plug-in adds a task which generates a single XML Jaco
 The source-jars plug-in adds two tasks of type `Jar` - `sourcesJar`, which generates a jar file with the source files of the project, and `javadocJar`, which generates a jar file with the javadoc files of the project. These tasks are added to the `archives` artifact configuration of the project, and if the `maven-publish` plug-in is used, they are added as artifacts with the `sources` and `javadoc` classifiers.
 
 These jars are intended to be uploaded alongside binary artifacts for open-source projects. They allow developers to trace through the associated code paths when debugging, and to view associated Javadoc documentation within their IDE.
+
+## org.starchartlabs.flare.metadata-base
+
+The metadata-base plug-in adds a configuration DSL for defining re-usable project meta data values within the build. The primary intended use for these values is as properties on generated artifacts
+
+### DSL
+
+The DSL is named `projectMetaData`, and allows defining information such as source control management locations, licensing, and individuals associated with the repository
+
+Meta data can be defined manually, or via GitHub conventions:
+
+#### Manual DSL
+
+```
+projectMetaData{
+	url = 'http://...'
+	
+	scm {
+		vcsUrl = 'http://...'
+		connection = 'http://...'
+		developerConnection = 'http://..'
+	}
+	
+	developers {
+		developer 'id', 'name', 'http://...'
+	}
+	
+	contributors {
+		contributor 'name', 'http://...'
+	}
+	
+	licenses {
+		mit('repo')
+	}
+}
+```
+
+#### GitHub DSL
+
+projectMetaData{
+	github {
+		repository 'owner', 'repository'
+		
+		developer 'octocat', 'Octocat'
+		contributor 'hue'
+	}
+	
+	licenses {
+		mit('repo')
+	}
+}
+
+In addition to the standard DSL within the build file, the `github` configuration DSL allows loading developers and contributors from an external file. This file may have blank links, comment lines (starting with `#`), and configuration lines. Configuration lines are of the form `username` or `username, name`
+
+#### License Meta Data
+
+Regradless of use of the GitHub configuration DSL, meta data configuration includes specification of the project license. This can be done manually by providing name, tag, url, and maven distribution method (`repo` or `manual`), or by using a pre-specified license. Currently, the following licenses are pre-configured in teh DSL definition:
+
+* Apache 2.0 (`apache2`)
+* MIT (`mit`)
+* Eclipse Public License 1.0 (`epl`)
+
+All licenses have a DSL which omits distribution (defaulting to `repo`), and a DSL which accepts a distribution specification. Pull requests to add additional pre-configured licenses are welcome!
