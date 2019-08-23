@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -20,6 +22,7 @@ import java.util.jar.JarFile;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
+import org.starchartlabs.alloy.core.Strings;
 import org.starchartlabs.flare.plugins.test.TestGradleProject;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,6 +41,10 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
     private static final Path DEPENDENCIES_FILE = BUILD_FILE_DIRECTORY.resolve("dependencies.properties");
 
+    private static final Path DEVELOPERS_FILE = BUILD_FILE_DIRECTORY.resolve("developers.properties");
+
+    private static final Path CONTRIBUTORS_FILE = BUILD_FILE_DIRECTORY.resolve("contributors.properties");
+
     private Path singleProjectPath;
 
     private Path multiModuleProjectPath;
@@ -54,6 +61,8 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
         multiModuleProjectPath = TestGradleProject.builder(ROOT_PROJECT_BUILD_FILE)
                 .addFile(DEPENDENCIES_FILE, Paths.get("dependencies.properties"))
+                .addFile(DEVELOPERS_FILE, Paths.get("developers.properties"))
+                .addFile(CONTRIBUTORS_FILE, Paths.get("contributors.properties"))
                 .subProject("one", SUB_PROJECT_BUILD_FILE)
                 .addJavaFile("org.starchartlabs.flare.merge.coverage.reports.one", "Mainone")
                 .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports.one", "MainoneTest",
@@ -77,12 +86,46 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 .withGradleVersion("5.0")
                 .build();
 
+        List<String> expectedLines = new ArrayList<>();
+
         // Check constraints application
-        Assert.assertTrue(result.getOutput()
-                .contains("Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3"));
+        expectedLines.add("Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3");
 
         // Check managed credentials setup
-        Assert.assertTrue(result.getOutput().contains("Credentials configured: bintray"));
+        expectedLines.add("Credentials configured: bintray");
+
+        // Check increased test logging application
+        expectedLines.add("test Exception format: FULL");
+        expectedLines.add("test Quiet logging: [SKIPPED, FAILED]");
+        expectedLines.add("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
+        expectedLines.add("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
+
+        // Check source/javadoc jar tasks
+        expectedLines.add("Artifact Verification: maven:sources");
+        expectedLines.add("Artifact Verification: maven:javadoc");
+
+        // Check meta data configuration
+        expectedLines.add("url: http://url");
+
+        expectedLines.add("scm.vcsUrl: http://scm/url");
+        expectedLines.add("scm.connection: scm/connection");
+        expectedLines.add("scm.developerConnection: scm/developerConnection");
+
+        expectedLines.add("developer: developer/id:developer/name:developer/url");
+
+        expectedLines.add("contributor: contributor/name:contributor/url");
+
+        expectedLines.add("license: license/name:license/tag:license/url:license/distribution");
+        expectedLines.add("license: The Apache Software License, Version 2.0:Apache 2.0"
+                + ":http://www.apache.org/licenses/LICENSE-2.0.txt:repo");
+        expectedLines.add("license: The MIT License:MIT:https://opensource.org/licenses/MIT:mit/distribution");
+        expectedLines.add(
+                "license: Eclipse Public License 1.0:EPL:https://opensource.org/licenses/EPL-1.0:epl/distribution");
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(result.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
 
         // Check merge coverage reports application
         TaskOutcome outcome = result.task(":mergeCoverageReports").getOutcome();
@@ -99,14 +142,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
         Assert.assertTrue(coveredMainFile, "Coverage report missing line for expected source file");
 
-        // Check increased test logging application
-        Assert.assertTrue(result.getOutput().contains("test Exception format: FULL"));
-        Assert.assertTrue(result.getOutput().contains("test Quiet logging: [SKIPPED, FAILED]"));
-        Assert.assertTrue(result.getOutput()
-                .contains("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
-        Assert.assertTrue(result.getOutput()
-                .contains("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
-
         // Check source/javadoc jar tasks
         Path sourcesJar = singleProjectPath.resolve("build").resolve("libs")
                 .resolve(singleProjectPath.getFileName().toString() + "-sources.jar");
@@ -115,9 +150,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
         verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.java");
         verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.html");
-
-        Assert.assertTrue(result.getOutput().contains("Artifact Verification: maven:sources"));
-        Assert.assertTrue(result.getOutput().contains("Artifact Verification: maven:javadoc"));
     }
 
     @Test
@@ -129,14 +161,20 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 .withGradleVersion("5.0")
                 .build();
 
+        List<String> expectedLines = new ArrayList<>();
+
         // Check constraints application
-        Assert.assertTrue(result.getOutput()
-                .contains("Applied configuration ':one:compile' dependency constraint: org.testng:testng:6.14.3"));
-        Assert.assertTrue(result.getOutput()
-                .contains("Applied configuration ':two:compile' dependency constraint: org.testng:testng:6.14.3"));
+        expectedLines.add("Applied configuration ':one:compile' dependency constraint: org.testng:testng:6.14.3");
+        expectedLines.add("Applied configuration ':two:compile' dependency constraint: org.testng:testng:6.14.3");
 
         // Check managed credentials setup
-        Assert.assertTrue(result.getOutput().contains("Credentials configured: bintray"));
+        expectedLines.add("Credentials configured: bintray");
+
+        // Check increased test logging application
+        expectedLines.add("test Exception format: FULL");
+        expectedLines.add("test Quiet logging: [SKIPPED, FAILED]");
+        expectedLines.add("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
+        expectedLines.add("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
 
         // Check merge coverage reports application
         TaskOutcome outcome = result.task(":mergeCoverageReports").getOutcome();
@@ -158,14 +196,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
         Assert.assertTrue(coveredMainOneFile, "Coverage report missing line for expected source file Mainone");
         Assert.assertTrue(coveredMainTwoFile, "Coverage report missing line for expected source file Maintwo");
 
-        // Check increased test logging application
-        Assert.assertTrue(result.getOutput().contains("test Exception format: FULL"));
-        Assert.assertTrue(result.getOutput().contains("test Quiet logging: [SKIPPED, FAILED]"));
-        Assert.assertTrue(result.getOutput()
-                .contains("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
-        Assert.assertTrue(result.getOutput()
-                .contains("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]"));
-
         // Check source/javadoc jar tasks
         for (String subProjectName : Arrays.asList("one", "two")) {
             Path sourcesJar = multiModuleProjectPath.resolve(subProjectName).resolve("build").resolve("libs")
@@ -178,10 +208,29 @@ public class MultiModuleLibraryPluginIntegrationTest {
             verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/" + subProjectName + "/Main"
                     + subProjectName + ".html");
 
-            Assert.assertTrue(
-                    result.getOutput().contains("Artifact Verification: " + subProjectName + ":maven:sources"));
-            Assert.assertTrue(
-                    result.getOutput().contains("Artifact Verification: " + subProjectName + ":maven:javadoc"));
+            expectedLines.add("Artifact Verification: " + subProjectName + ":maven:sources");
+            expectedLines.add("Artifact Verification: " + subProjectName + ":maven:javadoc");
+
+            // Check meta data configuration
+            expectedLines.add("url: https://github.com/owner/" + subProjectName);
+
+            expectedLines.add("scm.vcsUrl: https://github.com/owner/" + subProjectName);
+            expectedLines.add("scm.connection: scm:git:git://github.com/owner/" + subProjectName + ".git");
+            expectedLines.add("scm.developerConnection: scm:git:ssh://github.com/owner/" + subProjectName + ".git");
+
+            expectedLines
+            .add("developer: dev-file-usernameonly:dev-file-usernameonly:https://github.com/dev-file-usernameonly");
+            expectedLines.add("developer: dev-file-username:dev-file-name:https://github.com/dev-file-username");
+
+            expectedLines.add("contributor: contrib-file-usernameonly:https://github.com/contrib-file-usernameonly");
+            expectedLines.add("contributor: contrib-file-name:https://github.com/contrib-file-username");
+
+            expectedLines.add("license: The MIT License:MIT:https://opensource.org/licenses/MIT:repo");
+        }
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(result.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
         }
     }
 

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - source-jars plug-in which provides tasks to build source and javadoc jars and adds them to the project's archives artifact configuration
 - Integrate source-jars with maven-publish plug-in as published artifacts
+- metadata-base plug-in which provides a DSL for re-usable project meta data values
 
 ## [0.1.0]
 ### Added

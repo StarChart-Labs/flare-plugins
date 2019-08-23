@@ -4,6 +4,16 @@ plugins {
     id 'maven-publish'
 }
 
+projectMetaData{
+    github {
+        repository 'owner', "${project.name}"
+    }
+    
+    licenses {
+        mit()
+    }
+}
+
 dependencies {
     testCompile 'org.testng:testng'
 }
@@ -49,5 +59,28 @@ task outputTestLogging {
     }
 }
 
+task metaDataPrintout {
+    doLast{
+        project.logger.lifecycle("url: ${projectMetaData.url}")
+        
+        project.logger.lifecycle("scm.vcsUrl: ${projectMetaData.scm.vcsUrl}")
+        project.logger.lifecycle("scm.connection: ${projectMetaData.scm.connection}")
+        project.logger.lifecycle("scm.developerConnection: ${projectMetaData.scm.developerConnection}")
+        
+        projectMetaData.developers.each { developer ->
+            project.logger.lifecycle("developer: ${developer.id}:${developer.name}:${developer.url}")
+        }
+        
+        projectMetaData.contributors.each { contributor ->
+            project.logger.lifecycle("contributor: ${contributor.name}:${contributor.url}")
+        }
+        
+        projectMetaData.licenses.each { license ->
+            project.logger.lifecycle("license: ${license.name}:${license.tag}:${license.url}:${license.distribution}")
+        }
+    }
+}
+
 check.dependsOn outputTestLogging
 check.dependsOn outputMavenArtifacts
+check.dependsOn metaDataPrintout

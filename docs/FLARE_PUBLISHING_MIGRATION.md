@@ -11,3 +11,7 @@ No change aside from switch the imported library is required - the plug-in ID is
 ## org.starchartlabs.flare.pom-source-jar-artifacts
 
 The functionality of the `pom-source-jar-artifacts` plug-in has been combined with the `source-jars` plug-in, and will be conditionally applied if the `maven-publish` plug-in is used
+
+## org.starchartlabs.flare.published-info-base
+
+The DSL of the published info plug-in has been re-designed, and is now the metadata-base plug in. See the [new plug-ins](./PLUGINS.md) documentation for details on the new DSL form. All previous `publishedInfo` values are supported
