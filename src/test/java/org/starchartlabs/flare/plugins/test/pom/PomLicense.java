@@ -20,6 +20,16 @@ public class PomLicense {
 
     private String distribution;
 
+    public PomLicense() {
+
+    }
+
+    public PomLicense(String name, String url, String distribution) {
+        this.name = name;
+        this.url = url;
+        this.distribution = distribution;
+    }
+
     public String getName() {
         return name;
     }

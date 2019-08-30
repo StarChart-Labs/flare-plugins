@@ -28,6 +28,19 @@ public class PomProject {
 
     private List<PomLicense> licenses;
 
+    public PomProject() {
+
+    }
+
+    public PomProject(String url, PomScm scm, List<PomDeveloper> developers, List<PomContributor> contributors,
+            List<PomLicense> licenses) {
+        this.url = url;
+        this.scm = scm;
+        this.developers = developers;
+        this.contributors = contributors;
+        this.licenses = licenses;
+    }
+
     public String getUrl() {
         return url;
     }

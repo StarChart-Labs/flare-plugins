@@ -8,6 +8,8 @@ package org.starchartlabs.flare.plugins.test.plugin;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
@@ -18,6 +20,7 @@ import org.starchartlabs.flare.plugins.test.pom.PomContributor;
 import org.starchartlabs.flare.plugins.test.pom.PomDeveloper;
 import org.starchartlabs.flare.plugins.test.pom.PomLicense;
 import org.starchartlabs.flare.plugins.test.pom.PomProject;
+import org.starchartlabs.flare.plugins.test.pom.PomScm;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
@@ -55,40 +58,26 @@ public class MetaDataPomPluginIntegrationTest {
         Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
 
         // POM validation
-        validatePom(standardSetupProjectPath, "maven");
+        PomScm scm = new PomScm("http://scm/url", "scm/connection", "scm/developerConnection");
+        List<PomDeveloper> developers = Collections
+                .singletonList(new PomDeveloper("developer/id", "developer/name", "developer/url"));
+        List<PomContributor> contributors = Collections
+                .singletonList(new PomContributor("contributor/name", "contributor/url"));
+        List<PomLicense> licenses = Collections
+                .singletonList(new PomLicense("license/name", "license/url", "license/distribution"));
+
+        PomProject expectedProject = new PomProject("http://url", scm, developers, contributors, licenses);
+
+        validatePom(standardSetupProjectPath, "maven", expectedProject);
     }
 
-    private void validatePom(Path projectDirectory, String publication) throws Exception {
+    private void validatePom(Path projectDirectory, String publication, PomProject expected) throws Exception {
         Path generatedPom = projectDirectory.resolve("build").resolve("publications").resolve(publication)
                 .resolve("pom-default.xml");
         XmlMapper xmlMapper = new XmlMapper();
         PomProject value = xmlMapper.readValue(generatedPom.toFile(), PomProject.class);
 
-        Assert.assertEquals(value.getUrl(), "http://url");
-
-        Assert.assertEquals(value.getScm().getUrl(), "http://scm/url");
-        Assert.assertEquals(value.getScm().getConnection(), "scm/connection");
-        Assert.assertEquals(value.getScm().getDeveloperConnection(), "scm/developerConnection");
-
-        Assert.assertEquals(value.getDevelopers().size(), 1);
-        PomDeveloper developer = value.getDevelopers().iterator().next();
-
-        Assert.assertEquals(developer.getId(), "developer/id");
-        Assert.assertEquals(developer.getName(), "developer/name");
-        Assert.assertEquals(developer.getUrl(), "developer/url");
-
-        Assert.assertEquals(value.getContributors().size(), 1);
-        PomContributor contributor = value.getContributors().iterator().next();
-
-        Assert.assertEquals(contributor.getName(), "contributor/name");
-        Assert.assertEquals(contributor.getUrl(), "contributor/url");
-
-        Assert.assertEquals(value.getLicenses().size(), 1);
-        PomLicense license = value.getLicenses().iterator().next();
-
-        Assert.assertEquals(license.getName(), "license/name");
-        Assert.assertEquals(license.getUrl(), "license/url");
-        Assert.assertEquals(license.getDistribution(), "license/distribution");
+        Assert.assertEquals(value, expected);
     }
 
 }

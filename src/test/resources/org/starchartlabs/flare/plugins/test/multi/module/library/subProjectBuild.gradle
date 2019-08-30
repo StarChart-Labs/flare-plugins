@@ -84,3 +84,4 @@ task metaDataPrintout {
 check.dependsOn outputTestLogging
 check.dependsOn outputMavenArtifacts
 check.dependsOn metaDataPrintout
+check.dependsOn generatePomFileForMavenPublication

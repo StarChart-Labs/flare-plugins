@@ -12,7 +12,6 @@ import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.starchartlabs.flare.plugins.model.ProjectMetaData;
 
-//TODO romeara multi-module plug-in application, multi-module markdown doc
 /**
  * Convention plug-in that takes structures for defining project meta data from the meta-data base plug-in and applies
  * them to any POMs generated in relation to MavenPublication instances provided by the maven-publish plug-in

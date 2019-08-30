@@ -20,6 +20,16 @@ public class PomScm {
 
     private String developerConnection;
 
+    public PomScm() {
+
+    }
+
+    public PomScm(String url, String connection, String developerConnection) {
+        this.url = url;
+        this.connection = connection;
+        this.developerConnection = developerConnection;
+    }
+
     public String getUrl() {
         return url;
     }

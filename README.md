@@ -40,6 +40,7 @@ Applying this convention has the following effects:
 - Adds DSL for configuration project meta data
 - Loads developers into project meta data from file `"${rootDir}/developers.properties"`, if it exists
 - Loads contributors into project meta data from file `"${rootDir}/contributors.properties"`, if it exists
+- Applies project meta data to generated Maven POM files
 
 Individual plug-ins used to apply these changes:
 
@@ -49,6 +50,7 @@ Individual plug-ins used to apply these changes:
 - org.starchartlabs.flare.merge-coverage-reports
 - org.starchartlabs.flare.source-jars
 - org.starchartlabs.flare.metadata-base
+- org.starchartlabs.flare.metadata-pom
 
 ## Migrating From Previous Plug-ins
 

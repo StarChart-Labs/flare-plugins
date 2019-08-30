@@ -18,6 +18,15 @@ public class PomContributor {
 
     private String url;
 
+    public PomContributor() {
+
+    }
+
+    public PomContributor(String name, String url) {
+        this.name = name;
+        this.url = url;
+    }
+
     public String getName() {
         return name;
     }

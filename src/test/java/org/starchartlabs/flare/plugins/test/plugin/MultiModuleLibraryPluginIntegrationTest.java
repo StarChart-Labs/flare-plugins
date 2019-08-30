@@ -24,9 +24,16 @@ import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.starchartlabs.alloy.core.Strings;
 import org.starchartlabs.flare.plugins.test.TestGradleProject;
+import org.starchartlabs.flare.plugins.test.pom.PomContributor;
+import org.starchartlabs.flare.plugins.test.pom.PomDeveloper;
+import org.starchartlabs.flare.plugins.test.pom.PomLicense;
+import org.starchartlabs.flare.plugins.test.pom.PomProject;
+import org.starchartlabs.flare.plugins.test.pom.PomScm;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 public class MultiModuleLibraryPluginIntegrationTest {
 
@@ -48,6 +55,10 @@ public class MultiModuleLibraryPluginIntegrationTest {
     private Path singleProjectPath;
 
     private Path multiModuleProjectPath;
+
+    private BuildResult singleProjectBuildResult;
+
+    private BuildResult multiModuleProjectBuildResult;
 
     @BeforeClass
     public void setupProjects() throws Exception {
@@ -75,34 +86,102 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 .and()
                 .build()
                 .getProjectDirectory();
-    }
 
-    @Test
-    public void applyToSingleProject() throws Exception {
-        BuildResult result = GradleRunner.create()
+        singleProjectBuildResult = GradleRunner.create()
                 .withPluginClasspath()
                 .withProjectDir(singleProjectPath.toFile())
                 .withArguments("build", "--info")
                 .withGradleVersion("5.0")
                 .build();
 
+        multiModuleProjectBuildResult = GradleRunner.create()
+                .withPluginClasspath()
+                .withProjectDir(multiModuleProjectPath.toFile())
+                .withArguments("build", "--info")
+                .withGradleVersion("5.0")
+                .build();
+    }
+
+    @Test
+    public void singleProjectBuildSuccessful() throws Exception {
+        TaskOutcome outcome = singleProjectBuildResult.task(":build").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+    }
+
+    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
+    public void singleProjectMergeCoverageReports() throws Exception {
+        // Check merge coverage reports application
+        TaskOutcome outcome = singleProjectBuildResult.task(":mergeCoverageReports").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+
+        Path reportOutput = singleProjectPath.resolve(Paths.get("build", "reports", "jacoco", "report.xml"));
+
+        Assert.assertTrue(Files.exists(reportOutput));
+
+        boolean coveredMainFile = Files.lines(reportOutput)
+                .map(String::trim)
+                .anyMatch(line -> line.contains(
+                        "<class name=\"org/starchartlabs/flare/merge/coverage/reports/Main\" sourcefilename=\"Main.java\">"));
+
+        Assert.assertTrue(coveredMainFile, "Coverage report missing line for expected source file");
+    }
+
+    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
+    public void singleProjectDependencyConstraints() throws Exception {
+        String expectedLine = "Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3";
+
+        Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
+                Strings.format("Did not find expected line '%s'", expectedLine));
+    }
+
+    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
+    public void singleProjectManagedCredentials() throws Exception {
+        String expectedLine = "Credentials configured: bintray";
+
+        Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
+                Strings.format("Did not find expected line '%s'", expectedLine));
+    }
+
+    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
+    public void singleProjectIncreasedTestLogging() throws Exception {
         List<String> expectedLines = new ArrayList<>();
-
-        // Check constraints application
-        expectedLines.add("Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3");
-
-        // Check managed credentials setup
-        expectedLines.add("Credentials configured: bintray");
-
-        // Check increased test logging application
         expectedLines.add("test Exception format: FULL");
         expectedLines.add("test Quiet logging: [SKIPPED, FAILED]");
         expectedLines.add("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
         expectedLines.add("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
 
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+    }
+
+    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
+    public void singleProjectSourceJars() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
+
         // Check source/javadoc jar tasks
         expectedLines.add("Artifact Verification: maven:sources");
         expectedLines.add("Artifact Verification: maven:javadoc");
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+
+        // Check source/javadoc jar tasks
+        Path sourcesJar = singleProjectPath.resolve("build").resolve("libs")
+                .resolve(singleProjectPath.getFileName().toString() + "-sources.jar");
+        Path javadocJar = singleProjectPath.resolve("build").resolve("libs")
+                .resolve(singleProjectPath.getFileName().toString() + "-javadoc.jar");
+
+        verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.java");
+        verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.html");
+    }
+
+    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
+    public void singleProjectMetaDataBase() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
 
         // Check meta data configuration
         expectedLines.add("url: http://url");
@@ -123,61 +202,40 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 "license: Eclipse Public License 1.0:EPL:https://opensource.org/licenses/EPL-1.0:epl/distribution");
 
         for (String expectedLine : expectedLines) {
-            Assert.assertTrue(result.getOutput().contains(expectedLine),
+            Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
                     Strings.format("Did not find expected line '%s'", expectedLine));
         }
+    }
 
-        // Check merge coverage reports application
-        TaskOutcome outcome = result.task(":mergeCoverageReports").getOutcome();
-        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
+    public void singleProjectMetaDataPom() throws Exception {
+        // Validate generated POM
+        PomScm scm = new PomScm("http://scm/url", "scm/connection", "scm/developerConnection");
+        List<PomDeveloper> developers = Collections
+                .singletonList(new PomDeveloper("developer/id", "developer/name", "developer/url"));
+        List<PomContributor> contributors = Collections
+                .singletonList(new PomContributor("contributor/name", "contributor/url"));
+        List<PomLicense> licenses = Arrays.asList(new PomLicense("license/name", "license/url", "license/distribution"),
+                new PomLicense("The Apache Software License, Version 2.0",
+                        "http://www.apache.org/licenses/LICENSE-2.0.txt", "repo"),
+                new PomLicense("The MIT License", "https://opensource.org/licenses/MIT", "mit/distribution"),
+                new PomLicense("Eclipse Public License 1.0", "https://opensource.org/licenses/EPL-1.0",
+                        "epl/distribution"));
 
-        Path reportOutput = singleProjectPath.resolve(Paths.get("build", "reports", "jacoco", "report.xml"));
+        PomProject expectedProject = new PomProject("http://url", scm, developers, contributors, licenses);
 
-        Assert.assertTrue(Files.exists(reportOutput));
-
-        boolean coveredMainFile = Files.lines(reportOutput)
-                .map(String::trim)
-                .anyMatch(line -> line.contains(
-                        "<class name=\"org/starchartlabs/flare/merge/coverage/reports/Main\" sourcefilename=\"Main.java\">"));
-
-        Assert.assertTrue(coveredMainFile, "Coverage report missing line for expected source file");
-
-        // Check source/javadoc jar tasks
-        Path sourcesJar = singleProjectPath.resolve("build").resolve("libs")
-                .resolve(singleProjectPath.getFileName().toString() + "-sources.jar");
-        Path javadocJar = singleProjectPath.resolve("build").resolve("libs")
-                .resolve(singleProjectPath.getFileName().toString() + "-javadoc.jar");
-
-        verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.java");
-        verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.html");
+        validatePom(singleProjectPath, "maven", expectedProject);
     }
 
     @Test
-    public void applyToMultiModuleProject() throws Exception {
-        BuildResult result = GradleRunner.create()
-                .withPluginClasspath()
-                .withProjectDir(multiModuleProjectPath.toFile())
-                .withArguments("build", "--info")
-                .withGradleVersion("5.0")
-                .build();
+    public void multiModuleProjectBuildSuccessful() throws Exception {
+        TaskOutcome outcome = multiModuleProjectBuildResult.task(":build").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+    }
 
-        List<String> expectedLines = new ArrayList<>();
-
-        // Check constraints application
-        expectedLines.add("Applied configuration ':one:compile' dependency constraint: org.testng:testng:6.14.3");
-        expectedLines.add("Applied configuration ':two:compile' dependency constraint: org.testng:testng:6.14.3");
-
-        // Check managed credentials setup
-        expectedLines.add("Credentials configured: bintray");
-
-        // Check increased test logging application
-        expectedLines.add("test Exception format: FULL");
-        expectedLines.add("test Quiet logging: [SKIPPED, FAILED]");
-        expectedLines.add("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
-        expectedLines.add("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
-
-        // Check merge coverage reports application
-        TaskOutcome outcome = result.task(":mergeCoverageReports").getOutcome();
+    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
+    public void multiModuleProjectMergeCoverageReports() throws Exception {
+        TaskOutcome outcome = multiModuleProjectBuildResult.task(":mergeCoverageReports").getOutcome();
         Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
 
         Path reportOutput = multiModuleProjectPath.resolve(Paths.get("build", "reports", "jacoco", "report.xml"));
@@ -195,8 +253,48 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
         Assert.assertTrue(coveredMainOneFile, "Coverage report missing line for expected source file Mainone");
         Assert.assertTrue(coveredMainTwoFile, "Coverage report missing line for expected source file Maintwo");
+    }
 
-        // Check source/javadoc jar tasks
+    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
+    public void multiModuleProjectDependencyContraints() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
+
+        expectedLines.add("Applied configuration ':one:compile' dependency constraint: org.testng:testng:6.14.3");
+        expectedLines.add("Applied configuration ':two:compile' dependency constraint: org.testng:testng:6.14.3");
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+    }
+
+    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
+    public void multiModuleProjectManagedCredentials() throws Exception {
+        String expectedLine = "Credentials configured: bintray";
+
+        Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
+                Strings.format("Did not find expected line '%s'", expectedLine));
+    }
+
+    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
+    public void multiModuleProjectIncreasedTestLogging() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
+
+        expectedLines.add("test Exception format: FULL");
+        expectedLines.add("test Quiet logging: [SKIPPED, FAILED]");
+        expectedLines.add("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
+        expectedLines.add("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+    }
+
+    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
+    public void multiModuleProjectSourceJars() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
+
         for (String subProjectName : Arrays.asList("one", "two")) {
             Path sourcesJar = multiModuleProjectPath.resolve(subProjectName).resolve("build").resolve("libs")
                     .resolve(subProjectName + "-sources.jar");
@@ -210,8 +308,20 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
             expectedLines.add("Artifact Verification: " + subProjectName + ":maven:sources");
             expectedLines.add("Artifact Verification: " + subProjectName + ":maven:javadoc");
+        }
 
-            // Check meta data configuration
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+    }
+
+    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
+    public void multiModuleProjectMetaDataBase() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
+
+        // Check source/javadoc jar tasks
+        for (String subProjectName : Arrays.asList("one", "two")) {
             expectedLines.add("url: https://github.com/owner/" + subProjectName);
 
             expectedLines.add("scm.vcsUrl: https://github.com/owner/" + subProjectName);
@@ -229,8 +339,32 @@ public class MultiModuleLibraryPluginIntegrationTest {
         }
 
         for (String expectedLine : expectedLines) {
-            Assert.assertTrue(result.getOutput().contains(expectedLine),
+            Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
                     Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+    }
+
+    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
+    public void multiModuleProjectMetaDataPom() throws Exception {
+        // Check source/javadoc jar tasks
+        for (String subProjectName : Arrays.asList("one", "two")) {
+            PomScm scm = new PomScm("https://github.com/owner/" + subProjectName,
+                    "scm:git:git://github.com/owner/" + subProjectName + ".git",
+                    "scm:git:ssh://github.com/owner/" + subProjectName + ".git");
+            List<PomDeveloper> developers = Arrays.asList(
+                    new PomDeveloper("dev-file-usernameonly", "dev-file-usernameonly",
+                            "https://github.com/dev-file-usernameonly"),
+                    new PomDeveloper("dev-file-username", "dev-file-name", "https://github.com/dev-file-username"));
+            List<PomContributor> contributors = Arrays.asList(
+                    new PomContributor("contrib-file-usernameonly", "https://github.com/contrib-file-usernameonly"),
+                    new PomContributor("contrib-file-name", "https://github.com/contrib-file-username"));
+            List<PomLicense> licenses = Arrays.asList(
+                    new PomLicense("The MIT License", "https://opensource.org/licenses/MIT", "repo"));
+
+            PomProject expectedProject = new PomProject("https://github.com/owner/" + subProjectName, scm, developers,
+                    contributors, licenses);
+
+            validatePom(multiModuleProjectPath.resolve(subProjectName), "maven", expectedProject);
         }
     }
 
@@ -244,6 +378,15 @@ public class MultiModuleLibraryPluginIntegrationTest {
         }
 
         Assert.assertTrue(found, "Did not find expected file " + expectedFilePath);
+    }
+
+    private void validatePom(Path projectDirectory, String publication, PomProject expected) throws Exception {
+        Path generatedPom = projectDirectory.resolve("build").resolve("publications").resolve(publication)
+                .resolve("pom-default.xml");
+        XmlMapper xmlMapper = new XmlMapper();
+        PomProject value = xmlMapper.readValue(generatedPom.toFile(), PomProject.class);
+
+        Assert.assertEquals(value, expected);
     }
 
 }
