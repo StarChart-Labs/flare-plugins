@@ -7,10 +7,12 @@
 package org.starchartlabs.flare.plugins.model;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomScm;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -141,6 +143,20 @@ public class Scm {
      */
     public void setDeveloperConnection(@Nullable String developerConnection) {
         this.developerConnection = developerConnection;
+    }
+
+    // TODO romeara
+    public Action<MavenPomScm> getPomConfiguration() {
+        return (pomScm -> {
+            Optional.ofNullable(getVcsUrl())
+                    .ifPresent(url -> pomScm.getUrl().set(url));
+
+            Optional.ofNullable(getConnection())
+                    .ifPresent(connection -> pomScm.getConnection().set(connection));
+
+            Optional.ofNullable(getDeveloperConnection())
+                    .ifPresent(developerConnection -> pomScm.getDeveloperConnection().set(developerConnection));
+        });
     }
 
     @Override

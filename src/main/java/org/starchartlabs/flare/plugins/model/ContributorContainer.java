@@ -13,6 +13,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomContributorSpec;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -136,6 +137,15 @@ public class ContributorContainer {
         contributors.add(new Contributor().configure(action));
 
         return this;
+    }
+
+    // TODO romeara
+    public Action<MavenPomContributorSpec> getPomConfiguration() {
+        return (pomContributors -> {
+            getContributors().stream()
+                    .map(Contributor::getPomConfiguration)
+                    .forEach(pomContributors::contributor);
+        });
     }
 
     @Override

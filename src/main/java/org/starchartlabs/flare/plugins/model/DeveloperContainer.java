@@ -13,6 +13,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomDeveloperSpec;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -138,6 +139,15 @@ public class DeveloperContainer {
         developers.add(new Developer().configure(action));
 
         return this;
+    }
+
+    // TODO romeara
+    public Action<MavenPomDeveloperSpec> getPomConfiguation() {
+        return (pomDevelopers -> {
+            getDevelopers().stream()
+                    .map(Developer::getPomConfiguration)
+                    .forEach(pomDevelopers::developer);
+        });
     }
 
     @Override

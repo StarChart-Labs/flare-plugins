@@ -1,0 +1,37 @@
+plugins {
+    id  'org.starchartlabs.flare.metadata-pom'
+    id 'java'
+    id 'maven-publish'
+}
+
+projectMetaData{
+    url = 'http://url'
+    
+    scm {
+        vcsUrl = 'http://scm/url'
+        connection = 'scm/connection'
+        developerConnection = 'scm/developerConnection'
+    }
+    
+    developers {
+        developer 'developer/id', 'developer/name', 'developer/url'
+    }
+    
+    contributors {
+        contributor 'contributor/name', 'contributor/url'
+    }
+    
+    licenses {
+        license 'license/name', 'license/tag', 'license/url', 'license/distribution'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+//Task to run for tests: generatePomFileForMavenPublication

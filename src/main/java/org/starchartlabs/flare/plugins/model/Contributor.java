@@ -11,6 +11,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomContributor;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -119,6 +120,14 @@ public class Contributor {
      */
     public void setUrl(@Nullable String url) {
         this.url = url;
+    }
+
+    // TODO romeara
+    public Action<MavenPomContributor> getPomConfiguration() {
+        return (pomContributor -> {
+            pomContributor.getName().set(getName());
+            pomContributor.getUrl().set(getUrl());
+        });
     }
 
     @Override
