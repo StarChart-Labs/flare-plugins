@@ -139,12 +139,15 @@ public class ContributorContainer {
         return this;
     }
 
-    // TODO romeara
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "contributors" properties
+     * @since 0.2.0
+     */
     public Action<MavenPomContributorSpec> getPomConfiguration() {
         return (pomContributors -> {
             getContributors().stream()
-                    .map(Contributor::getPomConfiguration)
-                    .forEach(pomContributors::contributor);
+            .map(Contributor::getPomConfiguration)
+            .forEach(pomContributors::contributor);
         });
     }
 

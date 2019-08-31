@@ -144,7 +144,10 @@ public class Developer {
         this.url = url;
     }
 
-    // TODO romeara
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "developer" properties
+     * @since 0.2.0
+     */
     public Action<MavenPomDeveloper> getPomConfiguration() {
         return (pomDeveloper -> {
             pomDeveloper.getId().set(getId());

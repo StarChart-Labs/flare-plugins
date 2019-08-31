@@ -145,17 +145,20 @@ public class Scm {
         this.developerConnection = developerConnection;
     }
 
-    // TODO romeara
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "scm" properties
+     * @since 0.2.0
+     */
     public Action<MavenPomScm> getPomConfiguration() {
         return (pomScm -> {
             Optional.ofNullable(getVcsUrl())
-                    .ifPresent(url -> pomScm.getUrl().set(url));
+            .ifPresent(url -> pomScm.getUrl().set(url));
 
             Optional.ofNullable(getConnection())
-                    .ifPresent(connection -> pomScm.getConnection().set(connection));
+            .ifPresent(connection -> pomScm.getConnection().set(connection));
 
             Optional.ofNullable(getDeveloperConnection())
-                    .ifPresent(developerConnection -> pomScm.getDeveloperConnection().set(developerConnection));
+            .ifPresent(developerConnection -> pomScm.getDeveloperConnection().set(developerConnection));
         });
     }
 

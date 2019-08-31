@@ -6,7 +6,12 @@
  */
 package org.starchartlabs.flare.plugins.test.model;
 
+import java.util.Collections;
+
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomLicense;
+import org.gradle.api.publish.maven.MavenPomLicenseSpec;
+import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.License;
 import org.starchartlabs.flare.plugins.model.LicenseContainer;
 import org.testng.Assert;
@@ -150,6 +155,29 @@ public class LicenseContainerTest {
         Assert.assertEquals(result.getLicenses().iterator().next(),
                 new License("Eclipse Public License 1.0", "EPL", "https://opensource.org/licenses/EPL-1.0",
                         "distribution"));
+    }
+
+    @Test
+    public void getPomConfiguration() throws Exception {
+        Action<MavenPomLicense> action = (a -> {
+        });
+        License license = Mockito.mock(License.class);
+        Mockito.when(license.getPomConfiguration()).thenReturn(action);
+
+        MavenPomLicenseSpec pomLicenses = Mockito.mock(MavenPomLicenseSpec.class);
+
+        LicenseContainer licenseContainer = new LicenseContainer();
+        licenseContainer.setLicenses(Collections.singletonList(license));
+
+        try {
+            licenseContainer.getPomConfiguration().execute(pomLicenses);
+        } finally {
+            Mockito.verify(license).getPomConfiguration();
+            Mockito.verify(pomLicenses).license(action);
+
+            Mockito.verifyNoMoreInteractions(pomLicenses,
+                    license);
+        }
     }
 
     private static class TestClosure extends Closure<LicenseContainer> {

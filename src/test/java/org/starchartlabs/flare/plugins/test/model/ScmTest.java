@@ -7,6 +7,9 @@
 package org.starchartlabs.flare.plugins.test.model;
 
 import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
+import org.gradle.api.publish.maven.MavenPomScm;
+import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.Scm;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -66,6 +69,42 @@ public class ScmTest {
         Assert.assertEquals(result.getVcsUrl(), "vcsUrl");
         Assert.assertEquals(result.getConnection(), "connection");
         Assert.assertEquals(result.getDeveloperConnection(), "developerConnection");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void getPomConfiguration() throws Exception {
+        Property<String> urlProperty = Mockito.mock(Property.class);
+        Property<String> connectionProperty = Mockito.mock(Property.class);
+        Property<String> developerConnectionProperty = Mockito.mock(Property.class);
+
+        MavenPomScm pomScm = Mockito.mock(MavenPomScm.class);
+        Mockito.when(pomScm.getUrl()).thenReturn(urlProperty);
+        Mockito.when(pomScm.getConnection()).thenReturn(connectionProperty);
+        Mockito.when(pomScm.getDeveloperConnection()).thenReturn(developerConnectionProperty);
+
+        Scm scm = new Scm("vcsUrl", "connection", "developerConnection");
+
+        try {
+            Action<MavenPomScm> pomConfiguration = scm.getPomConfiguration();
+
+            Assert.assertNotNull(pomConfiguration);
+
+            pomConfiguration.execute(pomScm);
+        } finally {
+            Mockito.verify(pomScm).getUrl();
+            Mockito.verify(pomScm).getConnection();
+            Mockito.verify(pomScm).getDeveloperConnection();
+
+            Mockito.verify(urlProperty).set(scm.getVcsUrl());
+            Mockito.verify(connectionProperty).set(scm.getConnection());
+            Mockito.verify(developerConnectionProperty).set(scm.getDeveloperConnection());
+
+            Mockito.verifyNoMoreInteractions(pomScm,
+                    urlProperty,
+                    connectionProperty,
+                    developerConnectionProperty);
+        }
     }
 
     @Test

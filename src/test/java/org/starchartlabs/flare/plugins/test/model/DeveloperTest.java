@@ -7,6 +7,9 @@
 package org.starchartlabs.flare.plugins.test.model;
 
 import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
+import org.gradle.api.publish.maven.MavenPomDeveloper;
+import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.Developer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -66,6 +69,37 @@ public class DeveloperTest {
         Assert.assertEquals(result.getId(), "id");
         Assert.assertEquals(result.getName(), "name");
         Assert.assertEquals(result.getUrl(), "url");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void getPomConfiguration() throws Exception {
+        Property<String> idProperty = Mockito.mock(Property.class);
+        Property<String> nameProperty = Mockito.mock(Property.class);
+        Property<String> urlProperty = Mockito.mock(Property.class);
+
+        MavenPomDeveloper pomDeveloper = Mockito.mock(MavenPomDeveloper.class);
+        Mockito.when(pomDeveloper.getId()).thenReturn(idProperty);
+        Mockito.when(pomDeveloper.getName()).thenReturn(nameProperty);
+        Mockito.when(pomDeveloper.getUrl()).thenReturn(urlProperty);
+
+        Developer developer = new Developer("id", "name", "url");
+
+        try {
+            Action<MavenPomDeveloper> pomConfiguration = developer.getPomConfiguration();
+
+            Assert.assertNotNull(pomConfiguration);
+
+            pomConfiguration.execute(pomDeveloper);
+        } finally {
+            Mockito.verify(pomDeveloper).getId();
+            Mockito.verify(pomDeveloper).getName();
+            Mockito.verify(pomDeveloper).getUrl();
+
+            Mockito.verify(idProperty).set(developer.getId());
+            Mockito.verify(nameProperty).set(developer.getName());
+            Mockito.verify(urlProperty).set(developer.getUrl());
+        }
     }
 
     @Test

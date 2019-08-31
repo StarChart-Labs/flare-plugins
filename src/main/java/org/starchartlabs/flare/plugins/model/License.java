@@ -166,7 +166,10 @@ public class License {
         this.distribution = distribution;
     }
 
-    // TODO romeara
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "license" properties
+     * @since 0.2.0
+     */
     public Action<MavenPomLicense> getPomConfiguration() {
         return (pomLicense -> {
             pomLicense.getName().set(getName());

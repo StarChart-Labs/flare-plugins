@@ -7,6 +7,9 @@
 package org.starchartlabs.flare.plugins.test.model;
 
 import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
+import org.gradle.api.publish.maven.MavenPomContributor;
+import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.Contributor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -56,6 +59,33 @@ public class ContributorTest {
 
         Assert.assertEquals(result.getName(), "name");
         Assert.assertEquals(result.getUrl(), "url");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void getPomConfiguration() throws Exception {
+        Property<String> nameProperty = Mockito.mock(Property.class);
+        Property<String> urlProperty = Mockito.mock(Property.class);
+
+        MavenPomContributor pomContributor = Mockito.mock(MavenPomContributor.class);
+        Mockito.when(pomContributor.getName()).thenReturn(nameProperty);
+        Mockito.when(pomContributor.getUrl()).thenReturn(urlProperty);
+
+        Contributor contributor = new Contributor("name", "url");
+
+        try {
+            Action<MavenPomContributor> pomConfiguration = contributor.getPomConfiguration();
+
+            Assert.assertNotNull(pomConfiguration);
+
+            pomConfiguration.execute(pomContributor);
+        } finally {
+            Mockito.verify(pomContributor).getName();
+            Mockito.verify(pomContributor).getUrl();
+
+            Mockito.verify(nameProperty).set(contributor.getName());
+            Mockito.verify(urlProperty).set(contributor.getUrl());
+        }
     }
 
     @Test

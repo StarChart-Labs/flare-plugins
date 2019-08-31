@@ -324,15 +324,18 @@ public class ProjectMetaData {
         return this;
     }
 
-    // TODO romeara
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's properties
+     * @since 0.2.0
+     */
     public Action<MavenPom> getPomConfiguration() {
         return (pom -> {
             Optional.ofNullable(getUrl())
-                    .ifPresent(url -> pom.getUrl().set(url));
+            .ifPresent(url -> pom.getUrl().set(url));
 
             pom.scm(scm.getPomConfiguration());
 
-            pom.developers(developers.getPomConfiguation());
+            pom.developers(developers.getPomConfiguration());
 
             pom.contributors(contributors.getPomConfiguration());
 

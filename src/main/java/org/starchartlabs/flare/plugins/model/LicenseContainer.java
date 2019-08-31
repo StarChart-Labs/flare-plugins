@@ -220,7 +220,10 @@ public class LicenseContainer {
         return this;
     }
 
-    // TODO romeara
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "licenses" properties
+     * @since 0.2.0
+     */
     public Action<MavenPomLicenseSpec> getPomConfiguration() {
         return (pomLicenses -> {
             getLicenses().stream()

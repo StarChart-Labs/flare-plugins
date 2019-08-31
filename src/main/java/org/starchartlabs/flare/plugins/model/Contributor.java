@@ -122,7 +122,10 @@ public class Contributor {
         this.url = url;
     }
 
-    // TODO romeara
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "contributor" properties
+     * @since 0.2.0
+     */
     public Action<MavenPomContributor> getPomConfiguration() {
         return (pomContributor -> {
             pomContributor.getName().set(getName());

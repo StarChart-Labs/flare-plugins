@@ -141,12 +141,15 @@ public class DeveloperContainer {
         return this;
     }
 
-    // TODO romeara
-    public Action<MavenPomDeveloperSpec> getPomConfiguation() {
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "developers" properties
+     * @since 0.2.0
+     */
+    public Action<MavenPomDeveloperSpec> getPomConfiguration() {
         return (pomDevelopers -> {
             getDevelopers().stream()
-                    .map(Developer::getPomConfiguration)
-                    .forEach(pomDevelopers::developer);
+            .map(Developer::getPomConfiguration)
+            .forEach(pomDevelopers::developer);
         });
     }
 
