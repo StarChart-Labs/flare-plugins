@@ -25,6 +25,12 @@ repositories {
     jcenter() 
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'commons-beanutils:commons-beanutils:1.9.3', 'commons-beanutils:commons-beanutils:1.9.4'
+    }
+}
+
 dependencies { 
     compile gradleApi() 
     compile 'org.starchartlabs.alloy:alloy-core:0.4.1'
