@@ -34,6 +34,7 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
             p.getPluginManager().apply("org.starchartlabs.flare.increased-test-logging");
             p.getPluginManager().apply("org.starchartlabs.flare.source-jars");
             p.getPluginManager().apply("org.starchartlabs.flare.metadata-base");
+            p.getPluginManager().apply("org.starchartlabs.flare.metadata-pom");
 
             DependencyConstraints dependencyConstraints = p.getExtensions().getByType(DependencyConstraints.class);
             ProjectMetaData projectMetaData = p.getExtensions().getByType(ProjectMetaData.class);

@@ -13,6 +13,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomDeveloperSpec;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -138,6 +139,18 @@ public class DeveloperContainer {
         developers.add(new Developer().configure(action));
 
         return this;
+    }
+
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "developers" properties
+     * @since 0.2.0
+     */
+    public Action<MavenPomDeveloperSpec> getPomConfiguration() {
+        return (pomDevelopers -> {
+            getDevelopers().stream()
+            .map(Developer::getPomConfiguration)
+            .forEach(pomDevelopers::developer);
+        });
     }
 
     @Override

@@ -7,6 +7,13 @@
 package org.starchartlabs.flare.plugins.test.model;
 
 import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
+import org.gradle.api.publish.maven.MavenPom;
+import org.gradle.api.publish.maven.MavenPomContributorSpec;
+import org.gradle.api.publish.maven.MavenPomDeveloperSpec;
+import org.gradle.api.publish.maven.MavenPomLicenseSpec;
+import org.gradle.api.publish.maven.MavenPomScm;
+import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.Contributor;
 import org.starchartlabs.flare.plugins.model.ContributorContainer;
 import org.starchartlabs.flare.plugins.model.Developer;
@@ -171,6 +178,64 @@ public class ProjectMetaDataTest {
 
         Assert.assertEquals(result.getLicenses().size(), 1);
         Assert.assertEquals(result.getLicenses().iterator().next(), new License("name", "tag", "url", "distribution"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void getPomConfiguration() throws Exception {
+        Action<MavenPomScm> scmAction = (a -> {
+        });
+        Action<MavenPomDeveloperSpec> developersAction = (a -> {
+        });
+        Action<MavenPomContributorSpec> contributorsAction = (a -> {
+        });
+        Action<MavenPomLicenseSpec> licensesAction = (a -> {
+        });
+
+        Scm scm = Mockito.mock(Scm.class);
+        DeveloperContainer developers = Mockito.mock(DeveloperContainer.class);
+        ContributorContainer contributors = Mockito.mock(ContributorContainer.class);
+        LicenseContainer licenses = Mockito.mock(LicenseContainer.class);
+
+        Mockito.when(scm.getPomConfiguration()).thenReturn(scmAction);
+        Mockito.when(developers.getPomConfiguration()).thenReturn(developersAction);
+        Mockito.when(contributors.getPomConfiguration()).thenReturn(contributorsAction);
+        Mockito.when(licenses.getPomConfiguration()).thenReturn(licensesAction);
+
+        Property<String> urlProperty = Mockito.mock(Property.class);
+
+        MavenPom pom = Mockito.mock(MavenPom.class);
+        Mockito.when(pom.getUrl()).thenReturn(urlProperty);
+
+        ProjectMetaData projectMetaData = new ProjectMetaData("url", scm, developers, contributors, licenses);
+
+        try {
+            projectMetaData.getPomConfiguration().execute(pom);
+        } finally {
+            Mockito.verify(pom).getUrl();
+            Mockito.verify(urlProperty).set(projectMetaData.getUrl());
+
+            Mockito.verify(scm).getPomConfiguration();
+            Mockito.verify(pom).scm(scmAction);
+
+            Mockito.verify(developers).getPomConfiguration();
+            Mockito.verify(pom).developers(developersAction);
+
+            Mockito.verify(contributors).getPomConfiguration();
+            Mockito.verify(pom).contributors(contributorsAction);
+
+            Mockito.verify(licenses).getPomConfiguration();
+            Mockito.verify(pom).licenses(licensesAction);
+
+            Mockito.verifyNoMoreInteractions(
+                    pom,
+                    urlProperty,
+                    scm,
+                    developers,
+                    contributors,
+                    licenses);
+        }
+
     }
 
     @Test

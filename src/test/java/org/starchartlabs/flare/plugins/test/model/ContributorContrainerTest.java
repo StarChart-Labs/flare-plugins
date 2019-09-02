@@ -6,7 +6,12 @@
  */
 package org.starchartlabs.flare.plugins.test.model;
 
+import java.util.Collections;
+
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomContributor;
+import org.gradle.api.publish.maven.MavenPomContributorSpec;
+import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.Contributor;
 import org.starchartlabs.flare.plugins.model.ContributorContainer;
 import org.testng.Assert;
@@ -80,6 +85,29 @@ public class ContributorContrainerTest {
 
         Assert.assertEquals(result.getContributors().size(), 1);
         Assert.assertEquals(result.getContributors().iterator().next(), new Contributor("name", "url"));
+    }
+
+    @Test
+    public void getPomConfiguration() throws Exception {
+        Action<MavenPomContributor> action = (a -> {
+        });
+        Contributor contributor = Mockito.mock(Contributor.class);
+        Mockito.when(contributor.getPomConfiguration()).thenReturn(action);
+
+        MavenPomContributorSpec pomContributors = Mockito.mock(MavenPomContributorSpec.class);
+
+        ContributorContainer developerContainer = new ContributorContainer();
+        developerContainer.setContributors(Collections.singletonList(contributor));
+
+        try {
+            developerContainer.getPomConfiguration().execute(pomContributors);
+        } finally {
+            Mockito.verify(contributor).getPomConfiguration();
+            Mockito.verify(pomContributors).contributor(action);
+
+            Mockito.verifyNoMoreInteractions(pomContributors,
+                    contributor);
+        }
     }
 
     @Test

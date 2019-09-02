@@ -13,6 +13,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomLicenseSpec;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -147,7 +148,7 @@ public class LicenseContainer {
 
     /**
      * Adds the Apache 2.0 license to the licenses the project may be used under with the "repo" distribution
-     * 
+     *
      * @return This container with configuration applied
      * @since 0.2.0
      */
@@ -172,7 +173,7 @@ public class LicenseContainer {
 
     /**
      * Adds the MIT license to the licenses the project may be used under with the "repo" distribution
-     * 
+     *
      * @return This container with configuration applied
      * @since 0.2.0
      */
@@ -196,7 +197,7 @@ public class LicenseContainer {
 
     /**
      * Adds the EPL 1.0 license to the licenses the project may be used under with the "repo" distribution
-     * 
+     *
      * @return This container with configuration applied
      * @since 0.2.0
      */
@@ -217,6 +218,18 @@ public class LicenseContainer {
                 distribution));
 
         return this;
+    }
+
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "licenses" properties
+     * @since 0.2.0
+     */
+    public Action<MavenPomLicenseSpec> getPomConfiguration() {
+        return (pomLicenses -> {
+            getLicenses().stream()
+            .map(License::getPomConfiguration)
+            .forEach(pomLicenses::license);
+        });
     }
 
     @Override
