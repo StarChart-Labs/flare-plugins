@@ -29,11 +29,6 @@ repositories {
 configurations.all {
     resolutionStrategy {
         force 'com.fasterxml.jackson.core:jackson-databind:2.9.9', 'com.fasterxml.jackson.core:jackson-databind:2.9.9.2'
-    }
-}
-
-configurations.all {
-    resolutionStrategy {
         force 'commons-beanutils:commons-beanutils:1.9.3', 'commons-beanutils:commons-beanutils:1.9.4'
     }
 }
