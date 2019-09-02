@@ -8,10 +8,12 @@ package org.starchartlabs.flare.plugins.model;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPom;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -320,6 +322,25 @@ public class ProjectMetaData {
         licenses.configure(action);
 
         return this;
+    }
+
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's properties
+     * @since 0.2.0
+     */
+    public Action<MavenPom> getPomConfiguration() {
+        return (pom -> {
+            Optional.ofNullable(getUrl())
+            .ifPresent(url -> pom.getUrl().set(url));
+
+            pom.scm(scm.getPomConfiguration());
+
+            pom.developers(developers.getPomConfiguration());
+
+            pom.contributors(contributors.getPomConfiguration());
+
+            pom.licenses(licenses.getPomConfiguration());
+        });
     }
 
     @Override

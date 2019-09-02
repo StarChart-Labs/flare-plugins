@@ -6,7 +6,12 @@
  */
 package org.starchartlabs.flare.plugins.test.model;
 
+import java.util.Collections;
+
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomDeveloper;
+import org.gradle.api.publish.maven.MavenPomDeveloperSpec;
+import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.Developer;
 import org.starchartlabs.flare.plugins.model.DeveloperContainer;
 import org.testng.Assert;
@@ -81,6 +86,29 @@ public class DeveloperContainerTest {
 
         Assert.assertEquals(result.getDevelopers().size(), 1);
         Assert.assertEquals(result.getDevelopers().iterator().next(), new Developer("id", "name", "url"));
+    }
+
+    @Test
+    public void getPomConfiguration() throws Exception {
+        Action<MavenPomDeveloper> action = (a -> {
+        });
+        Developer developer = Mockito.mock(Developer.class);
+        Mockito.when(developer.getPomConfiguration()).thenReturn(action);
+
+        MavenPomDeveloperSpec pomDevelopers = Mockito.mock(MavenPomDeveloperSpec.class);
+
+        DeveloperContainer developerContainer = new DeveloperContainer();
+        developerContainer.setDevelopers(Collections.singletonList(developer));
+
+        try {
+            developerContainer.getPomConfiguration().execute(pomDevelopers);
+        } finally {
+            Mockito.verify(developer).getPomConfiguration();
+            Mockito.verify(pomDevelopers).developer(action);
+
+            Mockito.verifyNoMoreInteractions(pomDevelopers,
+                    developer);
+        }
     }
 
     @Test

@@ -11,6 +11,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomContributor;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -119,6 +120,17 @@ public class Contributor {
      */
     public void setUrl(@Nullable String url) {
         this.url = url;
+    }
+
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "contributor" properties
+     * @since 0.2.0
+     */
+    public Action<MavenPomContributor> getPomConfiguration() {
+        return (pomContributor -> {
+            pomContributor.getName().set(getName());
+            pomContributor.getUrl().set(getUrl());
+        });
     }
 
     @Override

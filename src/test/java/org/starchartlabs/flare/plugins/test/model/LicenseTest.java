@@ -7,6 +7,9 @@
 package org.starchartlabs.flare.plugins.test.model;
 
 import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
+import org.gradle.api.publish.maven.MavenPomLicense;
+import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.License;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -76,6 +79,37 @@ public class LicenseTest {
         Assert.assertEquals(result.getTag(), "tag");
         Assert.assertEquals(result.getUrl(), "url");
         Assert.assertEquals(result.getDistribution(), "distribution");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void getPomConfiguration() throws Exception {
+        Property<String> nameProperty = Mockito.mock(Property.class);
+        Property<String> urlProperty = Mockito.mock(Property.class);
+        Property<String> distributionProperty = Mockito.mock(Property.class);
+
+        MavenPomLicense pomLicense = Mockito.mock(MavenPomLicense.class);
+        Mockito.when(pomLicense.getName()).thenReturn(nameProperty);
+        Mockito.when(pomLicense.getUrl()).thenReturn(urlProperty);
+        Mockito.when(pomLicense.getDistribution()).thenReturn(distributionProperty);
+
+        License license = new License("name", "tag", "url", "distribution");
+
+        try {
+            Action<MavenPomLicense> pomConfiguration = license.getPomConfiguration();
+
+            Assert.assertNotNull(pomConfiguration);
+
+            pomConfiguration.execute(pomLicense);
+        } finally {
+            Mockito.verify(pomLicense).getName();
+            Mockito.verify(pomLicense).getUrl();
+            Mockito.verify(pomLicense).getDistribution();
+
+            Mockito.verify(nameProperty).set(license.getName());
+            Mockito.verify(urlProperty).set(license.getUrl());
+            Mockito.verify(distributionProperty).set(license.getDistribution());
+        }
     }
 
     @Test

@@ -11,6 +11,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.gradle.api.Action;
+import org.gradle.api.publish.maven.MavenPomLicense;
 import org.starchartlabs.alloy.core.MoreObjects;
 
 import groovy.lang.Closure;
@@ -163,6 +164,18 @@ public class License {
      */
     public void setDistribution(String distribution) {
         this.distribution = distribution;
+    }
+
+    /**
+     * @return An action which configures meta-data values on a generated Maven POM's "license" properties
+     * @since 0.2.0
+     */
+    public Action<MavenPomLicense> getPomConfiguration() {
+        return (pomLicense -> {
+            pomLicense.getName().set(getName());
+            pomLicense.getUrl().set(getUrl());
+            pomLicense.getDistribution().set(getDistribution());
+        });
     }
 
     @Override

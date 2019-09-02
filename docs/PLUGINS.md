@@ -146,3 +146,7 @@ Regradless of use of the GitHub configuration DSL, meta data configuration inclu
 * Eclipse Public License 1.0 (`epl`)
 
 All licenses have a DSL which omits distribution (defaulting to `repo`), and a DSL which accepts a distribution specification. Pull requests to add additional pre-configured licenses are welcome!
+
+## org.starchartlabs.flare.metadata-pom
+
+The meta data POM plug-in takes data defined in the DSL defined by the `org.starchartlabs.flare.metadata-base` plug-in and applies it to the generated POM file for any `MavenPublication` definitions provided by the `maven-publish` plug-in
