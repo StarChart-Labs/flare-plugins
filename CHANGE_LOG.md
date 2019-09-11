@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - metadata-pom plug-in which applies meta data in metadata-base DSL to generated Maven POM files
 - Add metadata-pom plug-in to multi-module-library plug-in setup for all projects
 
+### Changed
+- Application of dependency-constraints is now done during the pre-resolve step for each configuration, and only constraints used by dependencies of that configuration are applied
+
 ## [0.1.0]
 ### Added
 - managed-credentials plug-in which provides a DSL for re-usable loaded credentials from multiple sources

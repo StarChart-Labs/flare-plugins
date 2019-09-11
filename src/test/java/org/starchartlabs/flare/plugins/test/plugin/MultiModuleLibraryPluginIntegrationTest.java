@@ -128,10 +128,25 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
     @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
     public void singleProjectDependencyConstraints() throws Exception {
-        String expectedLine = "Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3";
+        // Constraints should only be applied to configurations which use them
+        List<String> expectedLines = new ArrayList<>();
+        List<String> unexpectedLines = new ArrayList<>();
 
-        Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
-                Strings.format("Did not find expected line '%s'", expectedLine));
+        expectedLines.add("Applied configuration ':testCompile' dependency constraint: org.testng:testng:6.14.3");
+
+        unexpectedLines.add("Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3");
+        unexpectedLines.add("Applied configuration ':runtime' dependency constraint: org.testng:testng:6.14.3");
+        unexpectedLines.add("Applied configuration ':testRuntime' dependency constraint: org.testng:testng:6.14.3");
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+
+        for (String unexpectedLine : unexpectedLines) {
+            Assert.assertFalse(singleProjectBuildResult.getOutput().contains(unexpectedLine),
+                    Strings.format("Found unexpected line '%s'", unexpectedLine));
+        }
     }
 
     @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
@@ -257,14 +272,28 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
     @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
     public void multiModuleProjectDependencyContraints() throws Exception {
+        // Constraints should only be applied to configurations which use them
         List<String> expectedLines = new ArrayList<>();
+        List<String> unexpectedLines = new ArrayList<>();
 
-        expectedLines.add("Applied configuration ':one:compile' dependency constraint: org.testng:testng:6.14.3");
-        expectedLines.add("Applied configuration ':two:compile' dependency constraint: org.testng:testng:6.14.3");
+        expectedLines.add("Applied configuration ':one:testCompile' dependency constraint: org.testng:testng:6.14.3");
+        expectedLines.add("Applied configuration ':two:testCompile' dependency constraint: org.testng:testng:6.14.3");
+
+        unexpectedLines.add("Applied configuration ':one:compile' dependency constraint: org.testng:testng:6.14.3");
+        unexpectedLines.add("Applied configuration ':two:compile' dependency constraint: org.testng:testng:6.14.3");
+        unexpectedLines.add("Applied configuration ':one:runtime' dependency constraint: org.testng:testng:6.14.3");
+        unexpectedLines.add("Applied configuration ':two:runtime' dependency constraint: org.testng:testng:6.14.3");
+        unexpectedLines.add("Applied configuration ':one:testRuntime' dependency constraint: org.testng:testng:6.14.3");
+        unexpectedLines.add("Applied configuration ':two:testRuntime' dependency constraint: org.testng:testng:6.14.3");
 
         for (String expectedLine : expectedLines) {
             Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
                     Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+
+        for (String unexpectedLine : unexpectedLines) {
+            Assert.assertFalse(multiModuleProjectBuildResult.getOutput().contains(unexpectedLine),
+                    Strings.format("Found unexpected line '%s'", unexpectedLine));
         }
     }
 

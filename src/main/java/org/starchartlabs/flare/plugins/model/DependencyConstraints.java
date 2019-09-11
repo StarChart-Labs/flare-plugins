@@ -13,13 +13,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencyConstraint;
+import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.internal.artifacts.dependencies.DependencyConstraintInternal;
-import org.gradle.internal.impldep.aQute.lib.strings.Strings;
 import org.starchartlabs.alloy.core.Preconditions;
+import org.starchartlabs.alloy.core.Strings;
 
 /**
  * Represents domain-specific language applied to Gradle build files
@@ -65,12 +68,16 @@ public class DependencyConstraints {
         try {
             Set<String> constraints = getArtifactConstraints(file);
 
+            // Apply to configurations at resolution time
             project.getConfigurations().all(configuration -> {
-                constraints.forEach(gav -> {
-                    project.getDependencies().getConstraints().add(configuration.getName(), gav,
-                            this::configureConstraint);
+                configuration.withDependencies(dependencies -> {
+                    Set<String> configurationDependencies = getConfigurationDependencies(dependencies);
 
-                    project.getLogger().info("Applied {} dependency constraint: {}", configuration, gav);
+                    // Only apply constraints which are actually used by the configuration - otherwise they leak into
+                    // places like Maven POM files as unused dependencyManagement entries
+                    constraints.stream()
+                    .filter(gav -> configurationDependencies.stream().anyMatch(gav::startsWith))
+                    .forEach(gav -> applyConstraint(configuration, gav));
                 });
             });
         } catch (IOException e) {
@@ -78,6 +85,36 @@ public class DependencyConstraints {
         }
 
         return this;
+    }
+
+    /**
+     * Determine the artifacts used within a particular set of dependencies
+     * 
+     * @param dependencies
+     *            Specification of dependencies to find version-less use information for
+     * @return A set of "group:artifact" entries used within the dependency set
+     */
+    private Set<String> getConfigurationDependencies(DependencySet dependencies) {
+        Objects.requireNonNull(dependencies);
+
+        return dependencies.stream()
+                .map(dep -> Strings.format("%s:%s", dep.getGroup(), dep.getName()))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Applies and logs a dependency constraint against a specific configuration
+     *
+     * @param configuration
+     *            The configuration to register a constraint against
+     * @param gav
+     *            The constraint specification (usually group:artifact:version) to constrain artifacts within the
+     *            configuration with
+     */
+    private void applyConstraint(Configuration configuration, String gav) {
+        project.getDependencies().getConstraints().add(configuration.getName(), gav, this::configureConstraint);
+
+        project.getLogger().info("Applied {} dependency constraint: {}", configuration, gav);
     }
 
     /**

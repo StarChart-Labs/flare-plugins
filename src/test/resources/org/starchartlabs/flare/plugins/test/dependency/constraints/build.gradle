@@ -10,3 +10,22 @@ dependencyConstraints {
 configurations {
     createdAfterDsl
 }
+
+repositories{
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.testng:testng'
+    compile 'org.mockito:mockito-core'
+    
+    createdAfterDsl 'org.mockito:mockito-core'
+}
+
+task forceConfigurationResolution {
+    dependsOn assemble
+    
+    doFirst {
+        project.logger.info("files: ${configurations.createdAfterDsl.files}")
+    }
+}

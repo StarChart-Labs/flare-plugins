@@ -34,6 +34,7 @@ public class DependencyConstraintsPluginIntegrationTest {
     @BeforeClass
     public void setup() throws Exception {
         projectPath = TestGradleProject.builder(BUILD_FILE)
+                .addJavaFile("org.starchartlabs.flare.dependency.constraints", "Main")
                 .addFile(DEPENDENCIES_FILE, Paths.get("dependencies.properties"))
                 .build()
                 .getProjectDirectory();
@@ -41,24 +42,36 @@ public class DependencyConstraintsPluginIntegrationTest {
 
     @Test
     public void applyConstraints() throws Exception {
+        String constraintNotApplied = "org.starchartlabs.alloy:alloy-core:0.4.1";
+
         BuildResult result = GradleRunner.create()
                 .withPluginClasspath()
                 .withProjectDir(projectPath.toFile())
-                .withArguments("tasks", "--info")
+                .withArguments("forceConfigurationResolution", "--info")
                 .withGradleVersion("5.0")
                 .build();
 
-        Assert.assertTrue(result.getOutput()
-                .contains("Applied configuration ':compile' dependency constraint: group:artifact:1.0"));
-        Assert.assertTrue(result.getOutput()
-                .contains("Applied configuration ':compile' dependency constraint: group2:artifact2:2.0"));
-        Assert.assertTrue(result.getOutput()
-                .contains("Applied configuration ':createdAfterDsl' dependency constraint: group:artifact:1.0"));
-        Assert.assertTrue(result.getOutput()
-                .contains("Applied configuration ':createdAfterDsl' dependency constraint: group2:artifact2:2.0"));
+        System.out.println(result.getOutput());
 
-        TaskOutcome outcome = result.task(":tasks").getOutcome();
-        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+        TaskOutcome outcome = result.task(":forceConfigurationResolution").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome), "Run failed: \n" + result.getOutput());
+
+        Assert.assertTrue(result.getOutput()
+                .contains("Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3"));
+        Assert.assertTrue(result.getOutput()
+                .contains("Applied configuration ':compile' dependency constraint: org.mockito:mockito-core:2.25.0"));
+        Assert.assertTrue(result.getOutput()
+                .contains(
+                        "Applied configuration ':createdAfterDsl' dependency constraint: org.mockito:mockito-core:2.25.0"));
+
+        // The plug-in should only apply constraints that are actually used, otherwise they leak into places like Maven
+        // POM files as unused dependencyManagement entries
+        Assert.assertFalse(result.getOutput()
+                .contains("Applied configuration ':createdAfterDsl' dependency constraint: org.testng:testng:6.14.3"));
+        Assert.assertFalse(result.getOutput()
+                .contains("Applied configuration ':compile' dependency constraint: " + constraintNotApplied));
+        Assert.assertFalse(result.getOutput()
+                .contains("Applied configuration ':createdAfterDsl' dependency constraint: " + constraintNotApplied));
     }
 
 }

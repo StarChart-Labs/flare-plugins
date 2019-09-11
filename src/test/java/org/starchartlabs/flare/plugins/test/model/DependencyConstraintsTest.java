@@ -12,12 +12,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencyConstraint;
+import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.dsl.DependencyConstraintHandler;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.artifacts.dependencies.DependencyConstraintInternal;
@@ -35,10 +38,12 @@ public class DependencyConstraintsTest {
 
     @BeforeClass
     public void setupFile() throws Exception {
+        // 1-3 are setup in tests as "used" dependencies, 4 simulates an unused constraint that should not be applied
         List<String> lines = new ArrayList<>();
         lines.add("group1:artifact1:1.0");
         lines.add("group2:artifact2:2.0");
         lines.add("group3:artifact3:3.0");
+        lines.add("group4:artifact4:4.0");
 
         Path path = Files.createTempFile("constraintFileTest", "no-discards");
 
@@ -82,6 +87,13 @@ public class DependencyConstraintsTest {
         DependencyConstraintHandler dependencyConstraintHandler = Mockito.mock(DependencyConstraintHandler.class);
         DependencyConstraint constraint = Mockito.mock(DependencyConstraint.class);
 
+        Dependency dependencyOne = getMockDependency("group1", "artifact1");
+        Dependency dependencyTwo = getMockDependency("group2", "artifact2");
+        Dependency dependencyThree = getMockDependency("group3", "artifact3");
+
+        DependencySet dependencySet = Mockito.mock(DependencySet.class);
+        Mockito.when(dependencySet.stream()).thenReturn(Stream.of(dependencyOne, dependencyTwo, dependencyThree));
+
         Mockito.when(project.getLogger()).thenReturn(logger);
         Mockito.when(project.getConfigurations()).thenReturn(configurationContainer);
         Mockito.when(configuration.getName()).thenReturn("configName");
@@ -90,6 +102,7 @@ public class DependencyConstraintsTest {
         Mockito.when(constraint.getName()).thenReturn("constraintName");
 
         ArgumentCaptor<Action<Configuration>> configurationActionCapture = ArgumentCaptor.forClass(Action.class);
+        ArgumentCaptor<Action<DependencySet>> dependencySetActionCapture = ArgumentCaptor.forClass(Action.class);
         ArgumentCaptor<Action<DependencyConstraint>> constraintActionsCapture = ArgumentCaptor.forClass(Action.class);
 
         DependencyConstraints dependencyConstraints = new DependencyConstraints(project);
@@ -99,10 +112,26 @@ public class DependencyConstraintsTest {
         Mockito.verify(project).getConfigurations();
         Mockito.verify(configurationContainer).all(configurationActionCapture.capture());
 
+
         List<Action<Configuration>> configurationActions = configurationActionCapture.getAllValues();
 
         Assert.assertEquals(configurationActions.size(), 1);
         configurationActions.get(0).execute(configuration);
+
+        Mockito.verify(configuration).withDependencies(dependencySetActionCapture.capture());
+
+        List<Action<DependencySet>> dependencySetActions = dependencySetActionCapture.getAllValues();
+
+        Assert.assertEquals(dependencySetActions.size(), 1);
+        dependencySetActions.get(0).execute(dependencySet);
+
+        Mockito.verify(dependencySet).stream();
+        Mockito.verify(dependencyOne).getGroup();
+        Mockito.verify(dependencyOne).getName();
+        Mockito.verify(dependencyTwo).getGroup();
+        Mockito.verify(dependencyTwo).getName();
+        Mockito.verify(dependencyThree).getGroup();
+        Mockito.verify(dependencyThree).getName();
 
         Mockito.verify(project, Mockito.times(3)).getDependencies();
         Mockito.verify(dependencyHandler, Mockito.times(3)).getConstraints();
@@ -140,6 +169,13 @@ public class DependencyConstraintsTest {
         DependencyConstraintHandler dependencyConstraintHandler = Mockito.mock(DependencyConstraintHandler.class);
         DependencyConstraintInternal constraint = Mockito.mock(DependencyConstraintInternal.class);
 
+        Dependency dependencyOne = getMockDependency("group1", "artifact1");
+        Dependency dependencyTwo = getMockDependency("group2", "artifact2");
+        Dependency dependencyThree = getMockDependency("group3", "artifact3");
+
+        DependencySet dependencySet = Mockito.mock(DependencySet.class);
+        Mockito.when(dependencySet.stream()).thenReturn(Stream.of(dependencyOne, dependencyTwo, dependencyThree));
+
         Mockito.when(project.getLogger()).thenReturn(logger);
         Mockito.when(project.getConfigurations()).thenReturn(configurationContainer);
         Mockito.when(configuration.getName()).thenReturn("configName");
@@ -148,6 +184,7 @@ public class DependencyConstraintsTest {
         Mockito.when(constraint.getName()).thenReturn("constraintName");
 
         ArgumentCaptor<Action<Configuration>> configurationActionCapture = ArgumentCaptor.forClass(Action.class);
+        ArgumentCaptor<Action<DependencySet>> dependencySetActionCapture = ArgumentCaptor.forClass(Action.class);
         ArgumentCaptor<Action<DependencyConstraint>> constraintActionsCapture = ArgumentCaptor.forClass(Action.class);
 
         DependencyConstraints dependencyConstraints = new DependencyConstraints(project);
@@ -161,6 +198,21 @@ public class DependencyConstraintsTest {
 
         Assert.assertEquals(configurationActions.size(), 1);
         configurationActions.get(0).execute(configuration);
+
+        Mockito.verify(configuration).withDependencies(dependencySetActionCapture.capture());
+
+        List<Action<DependencySet>> dependencySetActions = dependencySetActionCapture.getAllValues();
+
+        Assert.assertEquals(dependencySetActions.size(), 1);
+        dependencySetActions.get(0).execute(dependencySet);
+
+        Mockito.verify(dependencySet).stream();
+        Mockito.verify(dependencyOne).getGroup();
+        Mockito.verify(dependencyOne).getName();
+        Mockito.verify(dependencyTwo).getGroup();
+        Mockito.verify(dependencyTwo).getName();
+        Mockito.verify(dependencyThree).getGroup();
+        Mockito.verify(dependencyThree).getName();
 
         Mockito.verify(project, Mockito.times(3)).getDependencies();
         Mockito.verify(dependencyHandler, Mockito.times(3)).getConstraints();
@@ -185,6 +237,16 @@ public class DependencyConstraintsTest {
 
         Mockito.verify(constraint).setForce(true);
         Mockito.verify(logger).debug("Forced constraint {}", constraint.getName());
+    }
+
+    // TODO test for skipping unused constraints (or build into above)
+
+    private Dependency getMockDependency(String group, String artifact) {
+        Dependency result = Mockito.mock(Dependency.class);
+        Mockito.when(result.getGroup()).thenReturn(group);
+        Mockito.when(result.getName()).thenReturn(artifact);
+
+        return result;
     }
 
 }
