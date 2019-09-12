@@ -24,6 +24,22 @@ public class ConstraintFileTest {
         new ConstraintFile(null);
     }
 
+    @Test(expectedExceptions = NullPointerException.class)
+    public void getDependencyNotationsNullConfiguration() throws Exception {
+        List<String> lines = new ArrayList<>();
+        lines.add("group1:artifact1:1.0");
+        lines.add("group2:artifact2:2.0");
+        lines.add("group3:artifact3:3.0");
+
+        Path path = Files.createTempFile("constraintFileTest", "no-discards");
+
+        Files.write(path, lines);
+
+        ConstraintFile file = new ConstraintFile(path);
+
+        file.getDependencyNotations(null);
+    }
+
     @Test
     public void getDependencyNotationsNoDiscardedLines() throws Exception {
         List<String> lines = new ArrayList<>();
@@ -37,7 +53,7 @@ public class ConstraintFileTest {
 
         ConstraintFile file = new ConstraintFile(path);
 
-        Set<String> result = file.getDependencyNotations();
+        Set<String> result = file.getDependencyNotations("compile");
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 3);
@@ -62,8 +78,32 @@ public class ConstraintFileTest {
 
         ConstraintFile file = new ConstraintFile(path);
 
-        Set<String> result = file.getDependencyNotations();
+        Set<String> result = file.getDependencyNotations("compile");
 
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertTrue(result.contains("group1:artifact1:1.0"));
+        Assert.assertTrue(result.contains("group2:artifact2:2.0"));
+        Assert.assertTrue(result.contains("group3:artifact3:3.0"));
+    }
+
+    @Test
+    public void getDependencyNotationsSpecificConfigurations() throws Exception {
+        List<String> lines = new ArrayList<>();
+        lines.add("group1:artifact1:1.0,first");
+        lines.add("group2:artifact2:2.0,first, second");
+        lines.add("group3:artifact3:3.0");
+        lines.add("group4:artifact3:4.0,third");
+
+        Path path = Files.createTempFile("constraintFileTest", "no-discards");
+
+        Files.write(path, lines);
+
+        ConstraintFile file = new ConstraintFile(path);
+
+        Set<String> result = file.getDependencyNotations("first");
+
+        // Should contain first-only, first & second, and unspecified (all)
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 3);
         Assert.assertTrue(result.contains("group1:artifact1:1.0"));

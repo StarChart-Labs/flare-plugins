@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -62,20 +61,20 @@ public class DependencyConstraints {
         Preconditions.checkArgument(file.exists(),
                 () -> Strings.format("Constraint file at %s does not exist", file.toPath().toString()));
 
-        try {
-            Set<String> constraints = getArtifactConstraints(file);
+        ConstraintFile constraints = getArtifactConstraints(file);
 
-            project.getConfigurations().all(configuration -> {
-                constraints.forEach(gav -> {
+        project.getConfigurations().all(configuration -> {
+            try {
+                constraints.getDependencyNotations(configuration.getName()).forEach(gav -> {
                     project.getDependencies().getConstraints().add(configuration.getName(), gav,
                             this::configureConstraint);
 
                     project.getLogger().info("Applied {} dependency constraint: {}", configuration, gav);
                 });
-            });
-        } catch (IOException e) {
-            throw new GradleException("Error loading dependency properties", e);
-        }
+            } catch (IOException e) {
+                throw new GradleException("Error loading dependency entries", e);
+            }
+        });
 
         return this;
     }
@@ -107,10 +106,8 @@ public class DependencyConstraints {
      * @param file
      *            The file to read values from
      * @return The dependency constraints to apply
-     * @throws IOException
-     *             If there is an error loading the file
      */
-    private synchronized Set<String> getArtifactConstraints(File file) throws IOException {
+    private synchronized ConstraintFile getArtifactConstraints(File file) {
         Objects.requireNonNull(file);
 
         Path key = file.toPath();
@@ -119,7 +116,7 @@ public class DependencyConstraints {
             loadedFileCache.put(key, new ConstraintFile(key));
         }
 
-        return loadedFileCache.get(key).getDependencyNotations();
+        return loadedFileCache.get(key);
     }
 
 }

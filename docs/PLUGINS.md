@@ -18,7 +18,7 @@ dependencyConstraints {
 
 ### File Format
 
-The file(s) currently supported by the plug-in follow a simple format. Lines may be empty, a comment, or a version definition. Comment lines start with the `#` character. Version lines are a GAV in the format `group:artifact:version`
+The file(s) currently supported by the plug-in follow a simple format. Lines may be empty, a comment, or a version definition. Comment lines start with the `#` character. Version lines are a GAV in the format `group:artifact:version`, and may optionally include the configurations the constraint should be limited to as comma-separated values (`group:artifact:version,config1,config2,...`)
 
 ## org.starchartlabs.flare.increased-test-logging
 
