@@ -112,6 +112,33 @@ public class ConstraintFileTest {
     }
 
     @Test
+    public void getDependencyNotationsSpecificConfigurationsCommentsBlanksAndWhitespace() throws Exception {
+        List<String> lines = new ArrayList<>();
+        lines.add("group1:artifact1:1.0, first");
+        lines.add("");
+        lines.add("# Comment");
+        lines.add("group2:artifact2:2.0 ,first , second");
+        lines.add(" # Comment");
+        lines.add(" group3:artifact3:3.0");
+        lines.add("group4:artifact3:4.0, third");
+
+        Path path = Files.createTempFile("constraintFileTest", "no-discards");
+
+        Files.write(path, lines);
+
+        ConstraintFile file = new ConstraintFile(path);
+
+        Set<String> result = file.getDependencyNotations("first");
+
+        // Should contain first-only, first & second, and unspecified (all)
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertTrue(result.contains("group1:artifact1:1.0"));
+        Assert.assertTrue(result.contains("group2:artifact2:2.0"));
+        Assert.assertTrue(result.contains("group3:artifact3:3.0"));
+    }
+
+    @Test
     public void hashCodeEqualWhenDataEqual() throws Exception {
         ConstraintFile result1 = new ConstraintFile(Paths.get("path"));
         ConstraintFile result2 = new ConstraintFile(Paths.get("path"));

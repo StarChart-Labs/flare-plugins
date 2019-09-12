@@ -6,11 +6,11 @@
  */
 package org.starchartlabs.flare.plugins.model;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -41,7 +41,9 @@ public class Constraint {
     public Constraint(String line) {
         Objects.requireNonNull(line);
 
-        List<String> elements = Arrays.asList(line.split(","));
+        List<String> elements = Stream.of(line.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
 
         Preconditions.checkArgument(!elements.isEmpty(), "Empty constraint line provided");
 
