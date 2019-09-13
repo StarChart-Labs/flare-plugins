@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.2.0]
 ### Added
 - source-jars plug-in which provides tasks to build source and javadoc jars and adds them to the project's archives artifact configuration
 - Integrate source-jars with maven-publish plug-in as published artifacts
