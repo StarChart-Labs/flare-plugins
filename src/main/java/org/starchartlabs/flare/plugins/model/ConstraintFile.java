@@ -21,8 +21,8 @@ import org.starchartlabs.alloy.core.MoreObjects;
  * Represents a file which specifies version constraints for dependencies
  *
  * <p>
- * Processed files may have lines which are blank, start with '#' (comments), and which contain 'group:artifact:version'
- * to apply constraints
+ * Processed files may have lines which are blank, start with '#' (comments), and which contain
+ * 'group:artifact:version[,configs,...]' to apply constraints
  *
  * @author romeara
  * @since 0.1.0
@@ -31,7 +31,7 @@ public class ConstraintFile {
 
     private final Path path;
 
-    private Set<String> loaded;
+    private Set<Constraint> loaded;
 
     /**
      * @param path
@@ -44,23 +44,31 @@ public class ConstraintFile {
     }
 
     /**
-     * Parses the represented file, providing the specified dependency constraints
+     * Parses the represented file, providing the specified dependency constraints for a given configuration
      *
-     * @return A set of the dependency GAV's to constrain
+     * @param configuration
+     *            The configuration to limit the returned dependency notations for
+     * @return A set of the dependency GAV's to constrain for the selected configuration
      * @throws IOException
      *             If there is an error reading the file
      * @since 0.1.0
      */
-    public Set<String> getDependencyNotations() throws IOException {
+    public Set<String> getDependencyNotations(String configuration) throws IOException {
+        Objects.requireNonNull(configuration);
+
         if (loaded == null) {
             loaded = Files.lines(path)
                     .map(String::trim)
                     .filter(line -> !line.isEmpty())
                     .filter(line -> !isComment(line))
+                    .map(Constraint::new)
                     .collect(Collectors.toSet());
         }
 
-        return loaded;
+        return loaded.stream()
+                .filter(constraint -> constraint.isConfigurationApplicable(configuration))
+                .map(Constraint::getGav)
+                .collect(Collectors.toSet());
     }
 
     /**

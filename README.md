@@ -32,7 +32,7 @@ Applying this convention has the following effects:
 
 - Applies a task to the root project which will create a merged Jacoco XML report in `${rootProject.buildDir}/reports/jacoco/report.xml`
 - Reads dependency versions from file `"${rootDir}/dependencies.properties"` and applies these as dependency constraints
-  - This file may have empty lines, lines starting with `#` which act as comments, or lines of the form `group:artifact:version`
+  - This file may have empty lines, lines starting with `#` which act as comments, or lines of the form `group:artifact:version[,configurations,...]`
 - Add a reference to credentials read from environment variables `BINTRAY_USER` and `BINTRAY_API_KEY`. These variables must be defined if the credentials are used
   - These credentials can be referenced by `${credentials.bintray.username}` and `${credentials.bintray.password}'
 - Increases the logging level of test events in sub-modules

@@ -106,7 +106,7 @@ public class DependencyConstraintsTest {
 
         Mockito.verify(project, Mockito.times(3)).getDependencies();
         Mockito.verify(dependencyHandler, Mockito.times(3)).getConstraints();
-        Mockito.verify(configuration, Mockito.times(3)).getName();
+        Mockito.verify(configuration, Mockito.times(4)).getName();
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group1:artifact1:1.0");
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group2:artifact2:2.0");
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group3:artifact3:3.0");
@@ -164,7 +164,7 @@ public class DependencyConstraintsTest {
 
         Mockito.verify(project, Mockito.times(3)).getDependencies();
         Mockito.verify(dependencyHandler, Mockito.times(3)).getConstraints();
-        Mockito.verify(configuration, Mockito.times(3)).getName();
+        Mockito.verify(configuration, Mockito.times(4)).getName();
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group1:artifact1:1.0");
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group2:artifact2:2.0");
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group3:artifact3:3.0");
