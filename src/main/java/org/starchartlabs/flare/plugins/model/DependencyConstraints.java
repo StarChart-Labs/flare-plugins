@@ -8,7 +8,10 @@ package org.starchartlabs.flare.plugins.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -61,20 +64,24 @@ public class DependencyConstraints {
         Preconditions.checkArgument(file.exists(),
                 () -> Strings.format("Constraint file at %s does not exist", file.toPath().toString()));
 
-        ConstraintFile constraints = getArtifactConstraints(file);
+        try {
+            ConstraintFile constraints = getArtifactConstraints(file);
 
-        project.getConfigurations().all(configuration -> {
-            try {
-                constraints.getDependencyNotations(configuration.getName()).forEach(gav -> {
-                    project.getDependencies().getConstraints().add(configuration.getName(), gav,
-                            this::configureConstraint);
+            project.getConfigurations().all(configuration -> {
+                try {
+                    constraints.getDependencyNotations(configuration.getName()).forEach(gav -> {
+                        project.getDependencies().getConstraints().add(configuration.getName(), gav,
+                                this::configureConstraint);
 
-                    project.getLogger().info("Applied {} dependency constraint: {}", configuration, gav);
-                });
-            } catch (IOException e) {
-                throw new GradleException("Error loading dependency entries", e);
-            }
-        });
+                        project.getLogger().info("Applied {} dependency constraint: {}", configuration, gav);
+                    });
+                } catch (IOException e) {
+                    throw new GradleException("Error loading dependency entries", e);
+                }
+            });
+        } catch (IOException e) {
+            throw new GradleException("Error reading dependency file attributes", e);
+        }
 
         return this;
     }
@@ -106,17 +113,43 @@ public class DependencyConstraints {
      * @param file
      *            The file to read values from
      * @return The dependency constraints to apply
+     * @throws IOException
+     *             If there is an error reading the file's attributes
      */
-    private synchronized ConstraintFile getArtifactConstraints(File file) {
+    private synchronized ConstraintFile getArtifactConstraints(File file) throws IOException {
         Objects.requireNonNull(file);
 
-        Path key = file.toPath();
+        Path key = generateCacheKey(file);
 
         if (!loadedFileCache.containsKey(key)) {
-            loadedFileCache.put(key, new ConstraintFile(key));
+            loadedFileCache.put(key, new ConstraintFile(file.toPath()));
         }
 
         return loadedFileCache.get(key);
+    }
+
+    /**
+     * Generates a consistent cache key for the contents of a loaded dependency file
+     * 
+     * @param file
+     *            The file to make a deterministic cache key for
+     * @return A deterministic cache key which is consistent for the file's location and contents
+     * @throws IOException
+     *             If there is an error reading the file's attributes
+     */
+    private Path generateCacheKey(File file) throws IOException {
+        Objects.requireNonNull(file);
+
+        Path filePath = file.toPath();
+
+        // Use the file path AND access time as the key, so if a different version is checked out, or a modification
+        // made locally, stale cache values will not be used
+        // This is a concern between builds because, as documented in GH-23, Gradle keeps class loaders (and therefore
+        // static variable contents) between runs within a given Daemon
+        BasicFileAttributes attrs = Files.readAttributes(filePath, BasicFileAttributes.class);
+        FileTime accessTime = attrs.lastAccessTime();
+
+        return filePath.resolve(Long.toString(accessTime.toMillis()));
     }
 
 }
