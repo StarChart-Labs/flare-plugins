@@ -18,6 +18,10 @@ The requirement for a copy of the license being included in distributions is ful
 
 If you discover a security vulnerability, contact the development team by e-mail at `vulnerabilities@starchartlabs.org`
 
+## Gradle Compatibility
+
+For all current releases, the minimum required Gradle version is 5.0
+
 ## Use
 
 The intended use for `flare-plugins` involves selecting a set of conventions for common uses, implemented as a single plug-in. However, individual plug-ins can still be applied if none of the current pre-defined conventions meet your use case. Instructions for each individual plug-in can be found [here](./docs/PLUGINS.md).
