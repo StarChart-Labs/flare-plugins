@@ -122,6 +122,7 @@ projectMetaData{
 
 #### GitHub DSL
 
+```
 projectMetaData{
 	github {
 		repository 'owner', 'repository'
@@ -134,6 +135,7 @@ projectMetaData{
 		mit('repo')
 	}
 }
+```
 
 In addition to the standard DSL within the build file, the `github` configuration DSL allows loading developers and contributors from an external file. This file may have blank links, comment lines (starting with `#`), and configuration lines. Configuration lines are of the form `username` or `username, name`
 
