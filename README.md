@@ -34,15 +34,15 @@ Applying this convention has the following effects:
 - Reads dependency versions from file `"${rootDir}/dependencies.properties"` and applies these as dependency constraints
   - This file may have empty lines, lines starting with `#` which act as comments, or lines of the form `group:artifact:version[,configurations,...]`
 - Add a reference to credentials read from environment variables `BINTRAY_USER` and `BINTRAY_API_KEY`. These variables must be defined if the credentials are used
-  - These credentials can be referenced by `${credentials.bintray.username}` and `${credentials.bintray.password}'
+  - These credentials can be referenced by `${credentials.bintray.username}` and `${credentials.bintray.password}`
 - Increases the logging level of test events in sub-modules
-- Adds tasks to generate sources and javadoc jars, and adds them to the project's acrhives artifact configuration
+- Adds tasks to generate sources and javadoc jars, and adds them to the project's `archives` artifact configuration
 - Adds DSL for configuration project meta data
 - Loads developers into project meta data from file `"${rootDir}/developers.properties"`, if it exists
 - Loads contributors into project meta data from file `"${rootDir}/contributors.properties"`, if it exists
 - Applies project meta data to generated Maven POM files
 
-Individual plug-ins used to apply these changes:
+Individual plug-ins used to apply these behaviors:
 
 - org.starchartlabs.flare.dependency-constraints
 - org.starchartlabs.flare.increased-test-logging
