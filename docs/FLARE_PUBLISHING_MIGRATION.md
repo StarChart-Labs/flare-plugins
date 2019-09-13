@@ -16,6 +16,51 @@ The functionality of the `pom-source-jar-artifacts` plug-in has been combined wi
 
 The DSL of the published info plug-in has been re-designed, and is now the metadata-base plug in. See the [new plug-ins](./PLUGINS.md) documentation for details on the new DSL form. All previous `publishedInfo` values are supported
 
+### Example DSL Migration
+
+*Legacy DSL*
+
+```
+publishedInfo{
+   url 'http://something'
+        
+   scm{
+      github 'StarChart-Labs', 'flare-plugins'
+   }
+        
+   licenses{
+      mit 'repo'
+   }
+        
+   developers{
+      github 'octocat', "Octo Cat"
+      developer 'id', 'name', 'url'
+   }
+}
+```
+
+*Equivalent New DSL*
+
+```
+projectMetaData{
+	url = 'http://something'
+  
+  github {
+     repository 'StarChart-Labs', 'flare-plugins'
+     
+     developer 'octocat', "Octo Cat"
+  }
+	
+	developers {
+		developer 'id', 'name', 'url'
+	}
+	
+	licenses {
+		mit 'repo'
+	}
+}
+```
+
 ## org.starchartlabs.flare.pom-published-info
 
 The DSL applied has been switched to the project meta-data DSL - otherwise, the only change necessary is to update the plug-in ID to `org.starchartlabs.flare.metadata-pom`
