@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Started allowing limitation of the configurations dependency constraints are applied to via the constraint file specification
+- (GH-23) Change caching logic for loaded dependency information to include time modified, to prevent stale cached content caused by the Gradle Daemon re-using class loaders between builds
 
 ## [0.1.0]
 ### Added
