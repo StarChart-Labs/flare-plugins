@@ -121,8 +121,12 @@ public class DependencyConstraints {
 
         Path key = generateCacheKey(file);
 
-        if (!loadedFileCache.containsKey(key)) {
-            loadedFileCache.put(key, new ConstraintFile(file.toPath()));
+        synchronized (loadedFileCache) {
+            if (!loadedFileCache.containsKey(key)) {
+                project.getLogger().info("Loaded dependency constraints file {}", file.toPath());
+
+                loadedFileCache.put(key, new ConstraintFile(file.toPath()));
+            }
         }
 
         return loadedFileCache.get(key);
@@ -130,7 +134,7 @@ public class DependencyConstraints {
 
     /**
      * Generates a consistent cache key for the contents of a loaded dependency file
-     * 
+     *
      * @param file
      *            The file to make a deterministic cache key for
      * @return A deterministic cache key which is consistent for the file's location and contents
@@ -147,9 +151,9 @@ public class DependencyConstraints {
         // This is a concern between builds because, as documented in GH-23, Gradle keeps class loaders (and therefore
         // static variable contents) between runs within a given Daemon
         BasicFileAttributes attrs = Files.readAttributes(filePath, BasicFileAttributes.class);
-        FileTime accessTime = attrs.lastAccessTime();
+        FileTime modifiedTime = attrs.lastModifiedTime();
 
-        return filePath.resolve(Long.toString(accessTime.toMillis()));
+        return filePath.resolve(Long.toString(modifiedTime.toMillis()));
     }
 
 }
