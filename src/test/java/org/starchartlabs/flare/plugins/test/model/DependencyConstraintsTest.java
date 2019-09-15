@@ -10,7 +10,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.gradle.api.Action;
@@ -26,26 +26,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.starchartlabs.flare.plugins.model.DependencyConstraints;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class DependencyConstraintsTest {
-
-    private File file;
-
-    @BeforeClass
-    public void setupFile() throws Exception {
-        List<String> lines = new ArrayList<>();
-        lines.add("group1:artifact1:1.0");
-        lines.add("group2:artifact2:2.0");
-        lines.add("group3:artifact3:3.0");
-
-        Path path = Files.createTempFile("constraintFileTest", "no-discards");
-
-        Files.write(path, lines);
-
-        file = path.toFile();
-    }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void constructNullProject() throws Exception {
@@ -74,6 +57,8 @@ public class DependencyConstraintsTest {
     @Test
     @SuppressWarnings("unchecked")
     public void fileUnforcibleConstraints() throws Exception {
+        File file = generateFile("group1:artifact1:1.0", "group2:artifact2:2.0", "group3:artifact3:3.0");
+
         Project project = Mockito.mock(Project.class);
         Logger logger = Mockito.mock(Logger.class);
         ConfigurationContainer configurationContainer = Mockito.mock(ConfigurationContainer.class);
@@ -107,6 +92,7 @@ public class DependencyConstraintsTest {
         Mockito.verify(project, Mockito.times(3)).getDependencies();
         Mockito.verify(dependencyHandler, Mockito.times(3)).getConstraints();
         Mockito.verify(configuration, Mockito.times(4)).getName();
+        Mockito.verify(logger).info("Loaded dependency constraints file {}", file.toPath());
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group1:artifact1:1.0");
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group2:artifact2:2.0");
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group3:artifact3:3.0");
@@ -132,6 +118,8 @@ public class DependencyConstraintsTest {
     @Test
     @SuppressWarnings("unchecked")
     public void fileForcibleContraints() throws Exception {
+        File file = generateFile("group1:artifact1:1.0", "group2:artifact2:2.0", "group3:artifact3:3.0");
+
         Project project = Mockito.mock(Project.class);
         Logger logger = Mockito.mock(Logger.class);
         ConfigurationContainer configurationContainer = Mockito.mock(ConfigurationContainer.class);
@@ -165,6 +153,7 @@ public class DependencyConstraintsTest {
         Mockito.verify(project, Mockito.times(3)).getDependencies();
         Mockito.verify(dependencyHandler, Mockito.times(3)).getConstraints();
         Mockito.verify(configuration, Mockito.times(4)).getName();
+        Mockito.verify(logger).info("Loaded dependency constraints file {}", file.toPath());
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group1:artifact1:1.0");
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group2:artifact2:2.0");
         Mockito.verify(logger).info("Applied {} dependency constraint: {}", configuration, "group3:artifact3:3.0");
@@ -185,6 +174,14 @@ public class DependencyConstraintsTest {
 
         Mockito.verify(constraint).setForce(true);
         Mockito.verify(logger).debug("Forced constraint {}", constraint.getName());
+    }
+
+    private File generateFile(String... lines) throws Exception {
+        Path path = Files.createTempFile("constraintFileTest", "no-discards");
+
+        Files.write(path, Arrays.asList(lines));
+
+        return path.toFile();
     }
 
 }
