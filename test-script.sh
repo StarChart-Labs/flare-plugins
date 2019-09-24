@@ -21,12 +21,12 @@ if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
     GITHUB_PR_ACTION="$(jq -r .action $GITHUB_EVENT_PATH)"
 fi
 
-if [ "$GITHUB_EVENT_NAME" = "push" ] || [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-    echo "Dependency scanning only support for push and pull_request events, skipping"
+if [ "$GITHUB_EVENT_NAME" != "push" ] && [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+    echo "Dependency scanning only supported for 'push' and 'pull_request events', skipping (" + $GITHUB_EVENT_NAME + ")"
     
     exit 0
 elif [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ "$GITHUB_PR_ACTION" != "opened" ] && [ "$GITHUB_PR_ACTION" != "reopened" ] && [ "$GITHUB_PR_ACTION" != "edited" ] && [ "$GITHUB_PR_ACTION" != "synchronize" ]; then
-    echo "Dependency scanning only support for push and pull_request events, skipping"
+    echo "Dependency scanning only supported for pull_request actions of 'opened', 'reopened', 'edited', and 'synchronize', skipping (" + $GITHUB_PR_ACTION + ")"
     
     exit 0
 fi
