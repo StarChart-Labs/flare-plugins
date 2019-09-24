@@ -33,13 +33,15 @@ fi
 
 # Set variables conditional on action flow
 if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+    # This reads the pull request name (number) and base (target) branch name from the webhook data. The 'base.ref' property is not actually a GitHub ref (starting with 'refs/heads/', like below), but a stripped branch name, according to GitHub doc
     PR_BRANCH="$(jq -r .pullRequest.base.ref $GITHUB_EVENT_PATH)"
     PR_NUMBER="$(jq -r .number $GITHUB_EVENT_PATH)"
     
     COPILOT_BRANCH=$(urlencode $PR_BRANCH)
     COPILOT_PULL_REQUEST=$(urlencode $PR_NUMBER)
 else
-    PUSH_BRANCH=${GITHUB_REF:10}
+    # This sub-stringing removes 'refs/heads/' from the branch name, as a version without that is not available in the push event
+    PUSH_BRANCH=${GITHUB_REF:11}
     
     COPILOT_BRANCH=$(urlencode $PUSH_BRANCH)
     COPILOT_PULL_REQUEST=false
