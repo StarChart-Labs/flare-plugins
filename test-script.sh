@@ -16,6 +16,39 @@ urlencode() {
     LC_COLLATE=$old_lc_collate
 }
 
+# Tests that the action workflow used is supported
+if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+    GITHUB_PR_ACTION="$(jq -r .action $GITHUB_EVENT_PATH)"
+fi
+
+if [ "$GITHUB_EVENT_NAME" = "push" ] || [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+    echo "Dependency scanning only support for push and pull_request events, skipping"
+    
+    exit 0
+elif [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ "$GITHUB_PR_ACTION" != "opened" ] && [ "$GITHUB_PR_ACTION" != "reopened" ] && [ "$GITHUB_PR_ACTION" != "edited" ] && [ "$GITHUB_PR_ACTION" != "synchronize" ]; then
+    echo "Dependency scanning only support for push and pull_request events, skipping"
+    
+    exit 0
+fi
+
+# Set variables conditional on action flow
+if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+    PR_BRANCH="$(jq -r .pullRequest.base.ref $GITHUB_EVENT_PATH)"
+    PR_NUMBER="$(jq -r .number $GITHUB_EVENT_PATH)"
+    
+    COPILOT_BRANCH=$(urlencode $PR_BRANCH)
+    COPILOT_PULL_REQUEST=$(urlencode $PR_NUMBER)
+else
+    PUSH_BRANCH=${GITHUB_REF:10}
+    
+    COPILOT_BRANCH=$(urlencode $PUSH_BRANCH)
+    COPILOT_PULL_REQUEST=false
+fi
+
+echo "BRANCH: " + $COPILOT_BRANCH
+echo "PR: " + $COPILOT_PULL_REQUEST
+
+
 #Setup standardized environment
 #GITHUB_ environment variables used here are documented at https://help.github.com/en/articles/virtual-environments-for-github-actions#environment-variables
 
@@ -24,10 +57,6 @@ COPILOT_DETECT_OPTIONS=${COPILOT_DETECT_OPTIONS:-}
 
 COPILOT_PROVIDER=${COPILOT_PROVIDER:-github}
 COPILOT_REPO_SLUG=$(urlencode $GITHUB_REPOSITORY)
-COPILOT_BRANCH=$(urlencode $GITHUB_REF)
-
-# TODO We will need to parse the event JSON to get the pull request number
-COPILOT_PULL_REQUEST=false
 
 # TODO Temporarily testing with supported header, will need to determine data to use
 COPILOT_BUILD_DATA=azure:1
