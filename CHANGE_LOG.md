@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Update to Jackson Databind 2.9.10 to address security vulnerabilities
 
 ## [0.2.1]
 ### Changed
