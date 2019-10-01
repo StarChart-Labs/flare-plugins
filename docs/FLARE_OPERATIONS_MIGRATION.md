@@ -20,7 +20,7 @@ dependencyConstraints {
 
 ## org.starchartlabs.flare.increase-test-logging
 
-No change aside from switch the imported library is required - the plug-in ID is unchanged
+Aside from switching the imported library, the plug-in ID has changed slightly to `org.starchartlabs.flare.increased-test-logging`
 
 ## org.starchartlabs.flare.managed-credentials
 
