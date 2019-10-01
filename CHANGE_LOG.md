@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- (GH-35) Added default "blank" credentials so that tasks other than publishing may be run in systems without the environment variables set
 
 ## [0.2.1]
 ### Changed
