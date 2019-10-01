@@ -58,7 +58,13 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
             @SuppressWarnings("unchecked")
             NamedDomainObjectContainer<CredentialSet> credentials = (NamedDomainObjectContainer<CredentialSet>) p
             .getExtensions().getByName("credentials");
-            credentials.add(new CredentialSet("bintray").environment("BINTRAY_USER", "BINTRAY_API_KEY"));
+
+            // Setup reading BinTray credentials from the environment, with defaults of blank to allow non-publishing
+            // tasks to be run in environments where the environment variables are not set
+            credentials.add(new CredentialSet("bintray")
+                    .environment("BINTRAY_USER", "BINTRAY_API_KEY")
+                    .defaultCredentials("", ""));
+
         });
     }
 

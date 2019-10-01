@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Changed
+- (GH-35) Added default "blank" credentials so that tasks other than publishing may be run in systems without the environment variables set
 - Update to Jackson Databind 2.9.10 to address security vulnerabilities
 
 ## [0.2.1]
