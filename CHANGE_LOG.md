@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- bintray-credentials plug-in to encapsulate the behavior of reading credentials for Bintray from the environment
+
 ### Changed
 - (GH-35) Added default "blank" credentials so that tasks other than publishing may be run in systems without the environment variables set
 - Update to Jackson Databind 2.9.10 to address security vulnerabilities

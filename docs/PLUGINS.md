@@ -74,6 +74,14 @@ credentials {
 
 Created credentials may be reference via `${credentials.name1.username}` and `${credentials.name1.password}`
 
+## org.starchartlabs.flare.bintray-credentials
+
+The bintray-credentials plug-in adds a convention on top of the managed-credentials configuration DSL to read bintray user and API key information from the `BINTRAY_USER` and `BINTRAY_API_KEY` environment variables. If unset, these values default to blank.
+
+### Use
+
+Created credentials may be reference via `${credentials.bintray.username}` and `${credentials.bintray.password}`
+
 ## org.starchartlabs.flare.merge-coverage-reports
 
 The merge-coverage-reports plug-in adds a task which generates a single XML Jacoco report which includes coverage information from reports in all sub-modules. The added task (`mergeCoverageReports`), depends on the `test` tasks of all sub-modules, and is added as a dependency of the `check` task of the root project

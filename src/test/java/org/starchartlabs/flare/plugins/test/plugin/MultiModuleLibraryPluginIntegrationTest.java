@@ -135,7 +135,7 @@ public class MultiModuleLibraryPluginIntegrationTest {
     }
 
     @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
-    public void singleProjectManagedCredentials() throws Exception {
+    public void singleProjectBintrayCredentials() throws Exception {
         String expectedLine = "Credentials configured: bintray";
 
         Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
@@ -269,7 +269,7 @@ public class MultiModuleLibraryPluginIntegrationTest {
     }
 
     @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
-    public void multiModuleProjectManagedCredentials() throws Exception {
+    public void multiModuleProjectBintrayCredentials() throws Exception {
         String expectedLine = "Credentials configured: bintray";
 
         Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
