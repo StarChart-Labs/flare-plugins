@@ -22,6 +22,10 @@ If you discover a security vulnerability, contact the development team by e-mail
 
 For all current releases, the minimum required Gradle version is 5.0
 
+## Major Version Changes
+
+When a major version is released, this is usually due to changes which are not backwards compatible. See [the major version migration guide](./docs/MAJOR_VERSION_MIGRATION_GUIDE.md) for information on adjustments which will be necesssary for your build to upgrade between major versions
+
 ## Use
 
 The intended use for `flare-plugins` involves selecting a set of conventions for common uses, implemented as a single plug-in. However, individual plug-ins can still be applied if none of the current pre-defined conventions meet your use case. Instructions for each individual plug-in can be found [here](./docs/PLUGINS.md).
