@@ -45,6 +45,10 @@ dependencies {
 
 // Setup default test behavior, including failure logging
 test {
+    //This is so tests run in altered environments behave consistently with IDE results, and cannot be used to test credential environment variable behavior
+    environment "BINTRAY_USER", ""
+    environment "BINTRAY_API_KEY", ""
+    
     useTestNG() { 
         useDefaultListeners = true 
     }
@@ -157,6 +161,12 @@ gradlePlugin {
             displayName = 'Managed Credentials'
             description = 'Provides a configurable DSL for defining sets of credentials used within the Gradle build'
             implementationClass = 'org.starchartlabs.flare.plugins.plugin.ManagedCredentialsPlugin'
+        }
+        managedCredentialsPlugin {
+            id = 'org.starchartlabs.flare.bintray-credentials'
+            displayName = 'Bintray Credentials'
+            description = 'Provides setup for bintray credentials to be read from environment variable for use within a Gradle build'
+            implementationClass = 'org.starchartlabs.flare.plugins.plugin.BintrayCredentialsPlugin'
         }
         mergeCoverageReportsPlugin {
             id = 'org.starchartlabs.flare.merge-coverage-reports'

@@ -55,6 +55,7 @@ Individual plug-ins used to apply these behaviors:
 - org.starchartlabs.flare.dependency-constraints
 - org.starchartlabs.flare.increased-test-logging
 - org.starchartlabs.flare.managed-credentials
+- org.starchartlabs.flare.bintray-credentials
 - org.starchartlabs.flare.merge-coverage-reports
 - org.starchartlabs.flare.source-jars
 - org.starchartlabs.flare.metadata-base

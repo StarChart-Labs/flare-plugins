@@ -8,10 +8,8 @@ package org.starchartlabs.flare.plugins.plugin;
 
 import java.io.File;
 
-import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.starchartlabs.flare.plugins.model.CredentialSet;
 import org.starchartlabs.flare.plugins.model.DependencyConstraints;
 import org.starchartlabs.flare.plugins.model.ProjectMetaData;
 
@@ -35,6 +33,7 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
             p.getPluginManager().apply("org.starchartlabs.flare.source-jars");
             p.getPluginManager().apply("org.starchartlabs.flare.metadata-base");
             p.getPluginManager().apply("org.starchartlabs.flare.metadata-pom");
+            p.getPluginManager().apply("org.starchartlabs.flare.bintray-credentials");
 
             DependencyConstraints dependencyConstraints = p.getExtensions().getByType(DependencyConstraints.class);
             ProjectMetaData projectMetaData = p.getExtensions().getByType(ProjectMetaData.class);
@@ -54,16 +53,6 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
             if (contributorsFile.exists()) {
                 projectMetaData.github(gh -> gh.contributors(contributorsFile));
             }
-
-            @SuppressWarnings("unchecked")
-            NamedDomainObjectContainer<CredentialSet> credentials = (NamedDomainObjectContainer<CredentialSet>) p
-            .getExtensions().getByName("credentials");
-
-            // Setup reading BinTray credentials from the environment, with defaults of blank to allow non-publishing
-            // tasks to be run in environments where the environment variables are not set
-            credentials.add(new CredentialSet("bintray")
-                    .environment("BINTRAY_USER", "BINTRAY_API_KEY")
-                    .defaultCredentials("", ""));
 
         });
     }
