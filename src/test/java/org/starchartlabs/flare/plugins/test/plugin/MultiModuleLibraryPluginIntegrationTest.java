@@ -42,6 +42,9 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
     private static final Path SINGLE_PROJECT_BUILD_FILE = BUILD_FILE_DIRECTORY.resolve("singleProjectBuild.gradle");
 
+    private static final Path SINGLE_PROJECT_NO_EXTERNAL_BUILD_FILE = BUILD_FILE_DIRECTORY
+            .resolve("singleProjectNoExternalBuild.gradle");
+
     private static final Path ROOT_PROJECT_BUILD_FILE = BUILD_FILE_DIRECTORY.resolve("rootProjectBuild.gradle");
 
     private static final Path SUB_PROJECT_BUILD_FILE = BUILD_FILE_DIRECTORY.resolve("subProjectBuild.gradle");
@@ -52,17 +55,32 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
     private static final Path CONTRIBUTORS_FILE = BUILD_FILE_DIRECTORY.resolve("contributors.properties");
 
+    // Simple single project
     private Path singleProjectPath;
 
+    // Single project without non-Gradle, non-Flare plug-ins
+    private Path singleProjectNoExternalPath;
+
+    // Multi-module project
     private Path multiModuleProjectPath;
 
     private BuildResult singleProjectBuildResult;
+
+    private BuildResult singleProjectNoExternalBuildResult;
 
     private BuildResult multiModuleProjectBuildResult;
 
     @BeforeClass
     public void setupProjects() throws Exception {
         singleProjectPath = TestGradleProject.builder(SINGLE_PROJECT_BUILD_FILE)
+                .addJavaFile("org.starchartlabs.flare.merge.coverage.reports", "Main")
+                .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports", "MainTest",
+                        "org.starchartlabs.flare.merge.coverage.reports.Main")
+                .addFile(DEPENDENCIES_FILE, Paths.get("dependencies.properties"))
+                .build()
+                .getProjectDirectory();
+
+        singleProjectNoExternalPath = TestGradleProject.builder(SINGLE_PROJECT_NO_EXTERNAL_BUILD_FILE)
                 .addJavaFile("org.starchartlabs.flare.merge.coverage.reports", "Main")
                 .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports", "MainTest",
                         "org.starchartlabs.flare.merge.coverage.reports.Main")
@@ -90,6 +108,13 @@ public class MultiModuleLibraryPluginIntegrationTest {
         singleProjectBuildResult = GradleRunner.create()
                 .withPluginClasspath()
                 .withProjectDir(singleProjectPath.toFile())
+                .withArguments("build", "--info")
+                .withGradleVersion("5.0")
+                .build();
+
+        singleProjectNoExternalBuildResult = GradleRunner.create()
+                .withPluginClasspath()
+                .withProjectDir(singleProjectNoExternalPath.toFile())
                 .withArguments("build", "--info")
                 .withGradleVersion("5.0")
                 .build();
@@ -225,6 +250,131 @@ public class MultiModuleLibraryPluginIntegrationTest {
         PomProject expectedProject = new PomProject("http://url", scm, developers, contributors, licenses);
 
         validatePom(singleProjectPath, "maven", expectedProject);
+    }
+
+    @Test
+    public void singleProjectNoExternalBuildSuccessful() throws Exception {
+        TaskOutcome outcome = singleProjectNoExternalBuildResult.task(":build").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+    }
+
+    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
+    public void singleProjectNoExternalMergeCoverageReports() throws Exception {
+        // Check merge coverage reports application
+        TaskOutcome outcome = singleProjectNoExternalBuildResult.task(":mergeCoverageReports").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+
+        Path reportOutput = singleProjectNoExternalPath.resolve(Paths.get("build", "reports", "jacoco", "report.xml"));
+
+        Assert.assertTrue(Files.exists(reportOutput));
+
+        boolean coveredMainFile = Files.lines(reportOutput)
+                .map(String::trim)
+                .anyMatch(line -> line.contains(
+                        "<class name=\"org/starchartlabs/flare/merge/coverage/reports/Main\" sourcefilename=\"Main.java\">"));
+
+        Assert.assertTrue(coveredMainFile, "Coverage report missing line for expected source file");
+    }
+
+    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
+    public void singleProjectNoExternalDependencyConstraints() throws Exception {
+        String expectedLine = "Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3";
+
+        Assert.assertTrue(singleProjectNoExternalBuildResult.getOutput().contains(expectedLine),
+                Strings.format("Did not find expected line '%s'", expectedLine));
+    }
+
+    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
+    public void singleProjecNoExternaltBintrayCredentials() throws Exception {
+        String expectedLine = "Credentials configured: bintray";
+
+        Assert.assertFalse(singleProjectNoExternalBuildResult.getOutput().contains(expectedLine),
+                Strings.format("Found unexpected line '%s'", expectedLine));
+    }
+
+    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
+    public void singleProjectNoExternalIncreasedTestLogging() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
+        expectedLines.add("test Exception format: FULL");
+        expectedLines.add("test Quiet logging: [SKIPPED, FAILED]");
+        expectedLines.add("test Info logging: [PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
+        expectedLines.add("test Debug logging: [STARTED, PASSED, SKIPPED, FAILED, STANDARD_OUT, STANDARD_ERROR]");
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(singleProjectNoExternalBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+    }
+
+    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
+    public void singleProjectNoExternalSourceJars() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
+
+        // Check source/javadoc jar tasks
+        expectedLines.add("Artifact Verification: maven:sources");
+        expectedLines.add("Artifact Verification: maven:javadoc");
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+
+        // Check source/javadoc jar tasks
+        Path sourcesJar = singleProjectNoExternalPath.resolve("build").resolve("libs")
+                .resolve(singleProjectNoExternalPath.getFileName().toString() + "-sources.jar");
+        Path javadocJar = singleProjectNoExternalPath.resolve("build").resolve("libs")
+                .resolve(singleProjectNoExternalPath.getFileName().toString() + "-javadoc.jar");
+
+        verifyFile(sourcesJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.java");
+        verifyFile(javadocJar.toFile(), "org/starchartlabs/flare/merge/coverage/reports/Main.html");
+    }
+
+    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
+    public void singleProjectNoExternalMetaDataBase() throws Exception {
+        List<String> expectedLines = new ArrayList<>();
+
+        // Check meta data configuration
+        expectedLines.add("url: http://url");
+
+        expectedLines.add("scm.vcsUrl: http://scm/url");
+        expectedLines.add("scm.connection: scm/connection");
+        expectedLines.add("scm.developerConnection: scm/developerConnection");
+
+        expectedLines.add("developer: developer/id:developer/name:developer/url");
+
+        expectedLines.add("contributor: contributor/name:contributor/url");
+
+        expectedLines.add("license: license/name:license/tag:license/url:license/distribution");
+        expectedLines.add("license: The Apache Software License, Version 2.0:Apache 2.0"
+                + ":http://www.apache.org/licenses/LICENSE-2.0.txt:repo");
+        expectedLines.add("license: The MIT License:MIT:https://opensource.org/licenses/MIT:mit/distribution");
+        expectedLines.add(
+                "license: Eclipse Public License 1.0:EPL:https://opensource.org/licenses/EPL-1.0:epl/distribution");
+
+        for (String expectedLine : expectedLines) {
+            Assert.assertTrue(singleProjectNoExternalBuildResult.getOutput().contains(expectedLine),
+                    Strings.format("Did not find expected line '%s'", expectedLine));
+        }
+    }
+
+    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
+    public void singleProjectNoExternalMetaDataPom() throws Exception {
+        // Validate generated POM
+        PomScm scm = new PomScm("http://scm/url", "scm/connection", "scm/developerConnection");
+        List<PomDeveloper> developers = Collections
+                .singletonList(new PomDeveloper("developer/id", "developer/name", "developer/url"));
+        List<PomContributor> contributors = Collections
+                .singletonList(new PomContributor("contributor/name", "contributor/url"));
+        List<PomLicense> licenses = Arrays.asList(new PomLicense("license/name", "license/url", "license/distribution"),
+                new PomLicense("The Apache Software License, Version 2.0",
+                        "http://www.apache.org/licenses/LICENSE-2.0.txt", "repo"),
+                new PomLicense("The MIT License", "https://opensource.org/licenses/MIT", "mit/distribution"),
+                new PomLicense("Eclipse Public License 1.0", "https://opensource.org/licenses/EPL-1.0",
+                        "epl/distribution"));
+
+        PomProject expectedProject = new PomProject("http://url", scm, developers, contributors, licenses);
+
+        validatePom(singleProjectNoExternalPath, "maven", expectedProject);
     }
 
     @Test
