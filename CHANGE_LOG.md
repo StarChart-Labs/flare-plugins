@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - (GH-35) Added default "blank" credentials so that tasks other than publishing may be run in systems without the environment variables set
+- (GH-15) Changed multi-module-library plug-in to only add default bintray credential set if the `com.jfrog.bintray` plug-in is applied
 - Update to Jackson Databind 2.9.10 to address security vulnerabilities
 
 ## [0.2.1]

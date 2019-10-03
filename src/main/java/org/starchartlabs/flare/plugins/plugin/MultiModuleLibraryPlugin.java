@@ -33,7 +33,10 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
             p.getPluginManager().apply("org.starchartlabs.flare.source-jars");
             p.getPluginManager().apply("org.starchartlabs.flare.metadata-base");
             p.getPluginManager().apply("org.starchartlabs.flare.metadata-pom");
-            p.getPluginManager().apply("org.starchartlabs.flare.bintray-credentials");
+
+            p.getPluginManager().withPlugin("com.jfrog.bintray", bintrayPlugin -> {
+                p.getPluginManager().apply("org.starchartlabs.flare.bintray-credentials");
+            });
 
             DependencyConstraints dependencyConstraints = p.getExtensions().getByType(DependencyConstraints.class);
             ProjectMetaData projectMetaData = p.getExtensions().getByType(ProjectMetaData.class);
