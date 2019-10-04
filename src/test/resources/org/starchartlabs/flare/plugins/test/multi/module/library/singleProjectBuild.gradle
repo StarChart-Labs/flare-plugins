@@ -6,6 +6,8 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.4'
 }
 
+description = "description"
+
 projectMetaData{
     url = 'http://url'
     

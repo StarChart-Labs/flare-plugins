@@ -18,6 +18,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PomProject {
 
+    private String name;
+
+    private String description;
+
     private String url;
 
     private PomScm scm;
@@ -32,13 +36,32 @@ public class PomProject {
 
     }
 
-    public PomProject(String url, PomScm scm, List<PomDeveloper> developers, List<PomContributor> contributors,
-            List<PomLicense> licenses) {
+    public PomProject(String name, String description, String url, PomScm scm, List<PomDeveloper> developers,
+            List<PomContributor> contributors, List<PomLicense> licenses) {
+        this.name = name;
+        this.description = description;
         this.url = url;
         this.scm = scm;
         this.developers = developers;
         this.contributors = contributors;
         this.licenses = licenses;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getUrl() {
@@ -83,7 +106,9 @@ public class PomProject {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUrl(),
+        return Objects.hash(getName(),
+                getDescription(),
+                getUrl(),
                 getScm(),
                 getDevelopers(),
                 getContributors(),
@@ -97,7 +122,9 @@ public class PomProject {
         if (obj instanceof PomProject) {
             PomProject compare = (PomProject) obj;
 
-            result = Objects.equals(compare.getUrl(), getUrl())
+            result = Objects.equals(compare.getName(), getName())
+                    && Objects.equals(compare.getDescription(), getDescription())
+                    && Objects.equals(compare.getUrl(), getUrl())
                     && Objects.equals(compare.getScm(), getScm())
                     && Objects.equals(compare.getDevelopers(), getDevelopers())
                     && Objects.equals(compare.getContributors(), getContributors())
@@ -110,6 +137,8 @@ public class PomProject {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(getClass()).omitNullValues()
+                .add("name", getName())
+                .add("description", getDescription())
                 .add("url", getUrl())
                 .add("scm", getScm())
                 .add("developers", getDevelopers())

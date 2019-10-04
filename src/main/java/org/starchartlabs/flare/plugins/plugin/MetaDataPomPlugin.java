@@ -36,6 +36,12 @@ public class MetaDataPomPlugin implements Plugin<Project> {
                 PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
 
                 publishing.getPublications().withType(MavenPublication.class).all(publication -> {
+                    // Apply default name/description
+                    publication.pom(pom -> {
+                        pom.getName().set(project.getName());
+                        pom.getDescription().set(project.getDescription());
+                    });
+
                     publication.pom(projectMetaData.getPomConfiguration());
                 });
             });

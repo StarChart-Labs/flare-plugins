@@ -66,7 +66,8 @@ public class MetaDataPomPluginIntegrationTest {
         List<PomLicense> licenses = Collections
                 .singletonList(new PomLicense("license/name", "license/url", "license/distribution"));
 
-        PomProject expectedProject = new PomProject("http://url", scm, developers, contributors, licenses);
+        PomProject expectedProject = new PomProject(standardSetupProjectPath.getFileName().toString(), "description",
+                "http://url", scm, developers, contributors, licenses);
 
         validatePom(standardSetupProjectPath, "maven", expectedProject);
     }

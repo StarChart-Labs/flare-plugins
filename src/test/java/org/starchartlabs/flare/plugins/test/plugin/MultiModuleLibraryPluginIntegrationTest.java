@@ -247,7 +247,8 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 new PomLicense("Eclipse Public License 1.0", "https://opensource.org/licenses/EPL-1.0",
                         "epl/distribution"));
 
-        PomProject expectedProject = new PomProject("http://url", scm, developers, contributors, licenses);
+        PomProject expectedProject = new PomProject(singleProjectPath.getFileName().toString(), "description",
+                "http://url", scm, developers, contributors, licenses);
 
         validatePom(singleProjectPath, "maven", expectedProject);
     }
@@ -372,7 +373,8 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 new PomLicense("Eclipse Public License 1.0", "https://opensource.org/licenses/EPL-1.0",
                         "epl/distribution"));
 
-        PomProject expectedProject = new PomProject("http://url", scm, developers, contributors, licenses);
+        PomProject expectedProject = new PomProject(singleProjectNoExternalPath.getFileName().toString(), "description",
+                "http://url", scm, developers, contributors, licenses);
 
         validatePom(singleProjectNoExternalPath, "maven", expectedProject);
     }
@@ -511,8 +513,8 @@ public class MultiModuleLibraryPluginIntegrationTest {
             List<PomLicense> licenses = Arrays.asList(
                     new PomLicense("The MIT License", "https://opensource.org/licenses/MIT", "repo"));
 
-            PomProject expectedProject = new PomProject("https://github.com/owner/" + subProjectName, scm, developers,
-                    contributors, licenses);
+            PomProject expectedProject = new PomProject(subProjectName, "description",
+                    "https://github.com/owner/" + subProjectName, scm, developers, contributors, licenses);
 
             validatePom(multiModuleProjectPath.resolve(subProjectName), "maven", expectedProject);
         }
