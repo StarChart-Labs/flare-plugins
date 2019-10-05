@@ -1,4 +1,3 @@
-// TODO Publishing: https://guides.gradle.org/publishing-plugins-to-gradle-plugin-portal/
 plugins {
     id 'java-gradle-plugin'
     id 'eclipse'
@@ -35,7 +34,7 @@ configurations.all {
 
 dependencies { 
     compile gradleApi() 
-    compile 'org.starchartlabs.alloy:alloy-core:0.4.1'
+    compile 'org.starchartlabs.alloy:alloy-core:0.5.0'
     
     testCompile gradleTestKit()
     testCompile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9'
