@@ -15,6 +15,10 @@ jobs:
         java-version: 1.8
     - name: Build with Gradle
       run: ./gradlew build
+    - name: CodeCov
+      uses: codecov/codecov-action@v1.0.2
+      with:
+        token: ${{secrets.CODECOV_UPLOAD_TOKEN}}
     - name: Upload to CoPilot
       if: github.event_name == 'push' || github.event_name == 'pull_request'
       run: bash <(curl -s https://copilot.blackducksoftware.com/ci/githubactions/scripts/upload)
