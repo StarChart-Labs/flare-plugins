@@ -14,6 +14,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.jfrog.bintray.gradle.BintrayExtension;
+
 public class BintrayCredentialsPluginTest {
 
     private static final String PLUGIN_ID = "org.starchartlabs.flare.bintray-credentials";
@@ -23,13 +25,14 @@ public class BintrayCredentialsPluginTest {
     @BeforeClass
     public void setupProject() {
         project = ProjectBuilder.builder().build();
+        project.getPluginManager().apply("com.jfrog.bintray");
         project.getPluginManager().apply(PLUGIN_ID);
         project.getPluginManager().apply("org.starchartlabs.flare.managed-credentials");
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void configurationApplied() throws Exception {
+    public void credentialsConfigurationApplied() throws Exception {
         NamedDomainObjectContainer<CredentialSet> found = (NamedDomainObjectContainer<CredentialSet>) project
                 .getExtensions().getByName("credentials");
 
@@ -43,6 +46,16 @@ public class BintrayCredentialsPluginTest {
         Assert.assertNotNull(bintray);
         Assert.assertEquals(bintray.getUsername(), "");
         Assert.assertEquals(bintray.getPassword(), "");
+    }
+
+    @Test
+    public void bintrayConfigurationApplied() throws Exception {
+        BintrayExtension found = project.getExtensions().getByType(BintrayExtension.class);
+
+        Assert.assertNotNull(found);
+
+        Assert.assertEquals(found.getUser(), "");
+        Assert.assertEquals(found.getKey(), "");
     }
 
 }

@@ -60,6 +60,9 @@ repositories {
 }
 
 task outputManagedCredentials{
+    doFirst {
+        project.logger.lifecycle("Bintray Credentials: u${bintray.user}:k${bintray.key}")
+    }
     doLast{
         credentials.all{
             project.logger.lifecycle("Credentials configured: ${it.name}")
