@@ -76,7 +76,7 @@ Created credentials may be reference via `${credentials.name1.username}` and `${
 
 ## org.starchartlabs.flare.bintray-credentials
 
-The bintray-credentials plug-in adds a convention on top of the managed-credentials configuration DSL to read bintray user and API key information from the `BINTRAY_USER` and `BINTRAY_API_KEY` environment variables. If unset, these values default to blank.
+If the `com.jfrog.bintray` plug-in is used, the bintray-credentials plug-in adds a convention on top of the managed-credentials configuration DSL to read bintray user and API key information from the `BINTRAY_USER` and `BINTRAY_API_KEY` environment variables. If unset, these values default to blank. These values are then configured in the `bintray` extension's `user` and `key` values.
 
 ### Use
 

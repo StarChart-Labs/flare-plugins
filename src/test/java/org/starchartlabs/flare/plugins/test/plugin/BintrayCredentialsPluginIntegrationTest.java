@@ -29,11 +29,20 @@ public class BintrayCredentialsPluginIntegrationTest {
 
     private Path projectPath;
 
+    private BuildResult buildResult;
+
     @BeforeClass
     public void setup() throws Exception {
         projectPath = TestGradleProject.builder(BUILD_FILE)
                 .build()
                 .getProjectDirectory();
+
+        buildResult = GradleRunner.create()
+                .withPluginClasspath()
+                .withProjectDir(projectPath.toFile())
+                .withArguments("credentialsPrintout", "extensionPrintout")
+                .withGradleVersion("5.0")
+                .build();
     }
 
     // TODO romeara Try to figure out a way to test the environment variable scenario
@@ -44,16 +53,20 @@ public class BintrayCredentialsPluginIntegrationTest {
         String expectedUsername = "";
         String expectedPassword = "";
 
-        BuildResult result = GradleRunner.create()
-                .withPluginClasspath()
-                .withProjectDir(projectPath.toFile())
-                .withArguments("credentialsPrintout")
-                .withGradleVersion("5.0")
-                .build();
+        Assert.assertTrue(buildResult.getOutput().contains(expectedUsername + ":" + expectedPassword));
 
-        Assert.assertTrue(result.getOutput().contains(expectedUsername + ":" + expectedPassword));
+        TaskOutcome outcome = buildResult.task(":credentialsPrintout").getOutcome();
+        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
+    }
 
-        TaskOutcome outcome = result.task(":credentialsPrintout").getOutcome();
+    @Test
+    public void extensionCredentials() throws Exception {
+        String expectedUsername = "";
+        String expectedPassword = "";
+
+        Assert.assertTrue(buildResult.getOutput().contains("u" + expectedUsername + ":k" + expectedPassword));
+
+        TaskOutcome outcome = buildResult.task(":extensionPrintout").getOutcome();
         Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
     }
 
