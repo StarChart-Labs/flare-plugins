@@ -24,11 +24,13 @@ repositories {
     jcenter()
 }
 
-//Force use of databind with security fixes
+// Force use of certain transitive dependencies for security fixes
 configurations.all {
     resolutionStrategy {
-        force 'com.fasterxml.jackson.core:jackson-databind:2.9.9', 'com.fasterxml.jackson.core:jackson-databind:2.9.10'
+        force 'com.fasterxml.jackson.core:jackson-databind:2.9.9', 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
         force 'commons-beanutils:commons-beanutils:1.9.3', 'commons-beanutils:commons-beanutils:1.9.4'
+        force 'xerces:xercesImpl:2.9.1', 'xerces:xercesImpl:2.12.0'
+        force 'org.apache.httpcomponents:httpclient:4.2.1', 'org.apache.httpcomponents:httpclient:4.2.6'
     }
 }
 
@@ -38,7 +40,7 @@ dependencies {
     compile 'org.starchartlabs.alloy:alloy-core:0.5.0'
     
     testCompile gradleTestKit()
-    testCompile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9'
+    testCompile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.1'
     testCompile 'org.mockito:mockito-core:2.25.0'
     testCompile 'org.testng:testng:6.14.3'
 }
@@ -200,6 +202,5 @@ gradlePlugin {
         }
     }
 }
-
 
 
