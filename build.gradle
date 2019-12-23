@@ -36,7 +36,7 @@ configurations.all {
 
 dependencies { 
     compile gradleApi()
-compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+    compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     compile 'org.starchartlabs.alloy:alloy-core:0.5.0'
     
     testCompile gradleTestKit()
