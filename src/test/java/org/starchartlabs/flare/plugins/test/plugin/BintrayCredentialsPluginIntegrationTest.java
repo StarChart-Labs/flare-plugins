@@ -40,7 +40,7 @@ public class BintrayCredentialsPluginIntegrationTest {
         buildResult = GradleRunner.create()
                 .withPluginClasspath()
                 .withProjectDir(projectPath.toFile())
-                .withArguments("credentialsPrintout", "extensionPrintout")
+                .withArguments("credentialsPrintout")
                 .withGradleVersion("5.0")
                 .build();
     }
@@ -56,17 +56,6 @@ public class BintrayCredentialsPluginIntegrationTest {
         Assert.assertTrue(buildResult.getOutput().contains(expectedUsername + ":" + expectedPassword));
 
         TaskOutcome outcome = buildResult.task(":credentialsPrintout").getOutcome();
-        Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
-    }
-
-    @Test
-    public void extensionCredentials() throws Exception {
-        String expectedUsername = "";
-        String expectedPassword = "";
-
-        Assert.assertTrue(buildResult.getOutput().contains("u" + expectedUsername + ":k" + expectedPassword));
-
-        TaskOutcome outcome = buildResult.task(":extensionPrintout").getOutcome();
         Assert.assertTrue(TaskOutcome.SUCCESS.equals(outcome));
     }
 

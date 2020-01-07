@@ -11,8 +11,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.starchartlabs.flare.plugins.model.CredentialSet;
 
-import com.jfrog.bintray.gradle.BintrayExtension;
-
 /**
  * Configuration plug-in that adds default configuration to read credentials from environment variables BINTRAY_USER and
  * BINTRAY_API_KEY for use within the Gradle build
@@ -25,9 +23,7 @@ public class BintrayCredentialsPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPluginManager().withPlugin("com.jfrog.bintray", bintrayPlugin -> {
-            CredentialSet credentials = setupManagedCredentials(project);
-
-            configureBintrayExtension(project, credentials);
+            setupManagedCredentials(project);
         });
     }
 
@@ -47,13 +43,6 @@ public class BintrayCredentialsPlugin implements Plugin<Project> {
         credentials.add(result);
 
         return result;
-    }
-
-    private void configureBintrayExtension(Project project, CredentialSet credentials) {
-        BintrayExtension bintray = project.getExtensions().getByType(BintrayExtension.class);
-
-        bintray.setUser(credentials.getUsername());
-        bintray.setKey(credentials.getPassword());
     }
 
 }

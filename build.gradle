@@ -36,13 +36,14 @@ configurations.all {
 
 dependencies { 
     compile gradleApi()
-    compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     compile 'org.starchartlabs.alloy:alloy-core:0.5.0'
     
     testCompile gradleTestKit()
     testCompile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.1'
     testCompile 'org.mockito:mockito-core:2.25.0'
     testCompile 'org.testng:testng:6.14.3'
+    
+    testRuntime 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
 }
 
 // Setup default test behavior, including failure logging

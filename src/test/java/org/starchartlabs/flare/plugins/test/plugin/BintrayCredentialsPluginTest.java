@@ -14,8 +14,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.jfrog.bintray.gradle.BintrayExtension;
-
 public class BintrayCredentialsPluginTest {
 
     private static final String PLUGIN_ID = "org.starchartlabs.flare.bintray-credentials";
@@ -46,16 +44,6 @@ public class BintrayCredentialsPluginTest {
         Assert.assertNotNull(bintray);
         Assert.assertEquals(bintray.getUsername(), "");
         Assert.assertEquals(bintray.getPassword(), "");
-    }
-
-    @Test
-    public void bintrayConfigurationApplied() throws Exception {
-        BintrayExtension found = project.getExtensions().getByType(BintrayExtension.class);
-
-        Assert.assertNotNull(found);
-
-        Assert.assertEquals(found.getUser(), "");
-        Assert.assertEquals(found.getKey(), "");
     }
 
 }
