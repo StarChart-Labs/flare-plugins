@@ -160,14 +160,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
     }
 
     @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
-    public void singleProjectBintrayExtensionCredentials() throws Exception {
-        String expectedLine = "Bintray Credentials: u:k";
-
-        Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
-                Strings.format("Did not find expected line '%s'", expectedLine));
-    }
-
-    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
     public void singleProjectBintrayCredentials() throws Exception {
         String expectedLine = "Credentials configured: bintray";
 
@@ -426,14 +418,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
             Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
                     Strings.format("Did not find expected line '%s'", expectedLine));
         }
-    }
-
-    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
-    public void multiModuleProjectBintrayExtensionCredentials() throws Exception {
-        String expectedLine = "Bintray Credentials: u:k";
-
-        Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
-                Strings.format("Did not find expected line '%s'", expectedLine));
     }
 
     @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
