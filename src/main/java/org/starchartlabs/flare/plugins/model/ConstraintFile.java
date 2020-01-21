@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -57,12 +58,14 @@ public class ConstraintFile {
         Objects.requireNonNull(configuration);
 
         if (loaded == null) {
-            loaded = Files.lines(path)
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty())
-                    .filter(line -> !isComment(line))
-                    .map(Constraint::new)
-                    .collect(Collectors.toSet());
+            try (Stream<String> lines = Files.lines(path)) {
+                loaded = lines
+                        .map(String::trim)
+                        .filter(line -> !line.isEmpty())
+                        .filter(line -> !isComment(line))
+                        .map(Constraint::new)
+                        .collect(Collectors.toSet());
+            }
         }
 
         return loaded.stream()
