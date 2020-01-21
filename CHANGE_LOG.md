@@ -4,14 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.0.0]
 ### Added
 - bintray-credentials plug-in to encapsulate the behavior of reading credentials for Bintray from the environment
 
 ### Changed
 - (GH-56) Fix resource leak when accessing dependency properties file
-
-### Changed
 - (GH-35) Added default "blank" credentials so that tasks other than publishing may be run in systems without the environment variables set
 - (GH-15) Changed multi-module-library plug-in to only add default bintray credential set if the `com.jfrog.bintray` plug-in is applied
 - (GH-36) Add default POM values for name and description as part of the metadata-pom plug-in
