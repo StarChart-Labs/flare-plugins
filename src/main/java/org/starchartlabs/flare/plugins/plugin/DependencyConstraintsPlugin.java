@@ -24,6 +24,9 @@ public class DependencyConstraintsPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getExtensions().add(CONSTRAINTS_DSL_EXTENSION, new DependencyConstraints(project));
+
+        project.getLogger()
+                .warn("Flare dependency management plug-in is deprecated - use Gradle platform constraints instead");
     }
 
 }

@@ -39,8 +39,6 @@ The `multi-module-library` convention is intended for gradle projects which defi
 Applying this convention has the following effects:
 
 - Applies a task to the root project which will create a merged Jacoco XML report in `${rootProject.buildDir}/reports/jacoco/report.xml`
-- Reads dependency versions from file `"${rootDir}/dependencies.properties"` and applies these as dependency constraints
-  - This file may have empty lines, lines starting with `#` which act as comments, or lines of the form `group:artifact:version[,configurations,...]`
 - Add a reference to credentials read from environment variables `BINTRAY_USER` and `BINTRAY_API_KEY`. These variables must be defined if the credentials are used, otherwise they default to blank
   - These credentials can be referenced by `${credentials.bintray.username}` and `${credentials.bintray.password}`
 - Configures the `user` and `key` values of the `bintray` extension from the configured credentials
@@ -53,7 +51,6 @@ Applying this convention has the following effects:
 
 Individual plug-ins used to apply these behaviors:
 
-- org.starchartlabs.flare.dependency-constraints
 - org.starchartlabs.flare.increased-test-logging
 - org.starchartlabs.flare.managed-credentials
 - org.starchartlabs.flare.bintray-credentials

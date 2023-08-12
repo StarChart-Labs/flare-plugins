@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+- Removed `org.starchartlabs.flare.dependency-constraints` from multi-module library plug-in
+- Removed `org.starchartlabs.flare.bintray-credentials` from multi-module library plug-in
+- Deprecated `org.starchartlabs.flare.dependency-constraints` plug-in in favor of Gradle platform configuration
+- Deprecated `org.starchartlabs.flare.bintray-credentials` as BinTray has been sunset
+
 ## [1.0.0]
 ### Added
 - bintray-credentials plug-in to encapsulate the behavior of reading credentials for Bintray from the environment

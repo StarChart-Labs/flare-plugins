@@ -1,6 +1,5 @@
 plugins {
     id  'org.starchartlabs.flare.multi-module-library'
-    id 'com.jfrog.bintray' version '1.8.4'
 }
 
 allprojects{

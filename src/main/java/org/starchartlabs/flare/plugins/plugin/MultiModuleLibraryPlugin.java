@@ -10,7 +10,6 @@ import java.io.File;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.starchartlabs.flare.plugins.model.DependencyConstraints;
 import org.starchartlabs.flare.plugins.model.ProjectMetaData;
 
 /**
@@ -27,27 +26,16 @@ public class MultiModuleLibraryPlugin implements Plugin<Project> {
         project.getPluginManager().apply("org.starchartlabs.flare.merge-coverage-reports");
 
         project.allprojects(p -> {
-            p.getPluginManager().apply("org.starchartlabs.flare.dependency-constraints");
             p.getPluginManager().apply("org.starchartlabs.flare.managed-credentials");
             p.getPluginManager().apply("org.starchartlabs.flare.increased-test-logging");
             p.getPluginManager().apply("org.starchartlabs.flare.source-jars");
             p.getPluginManager().apply("org.starchartlabs.flare.metadata-base");
             p.getPluginManager().apply("org.starchartlabs.flare.metadata-pom");
 
-            p.getPluginManager().withPlugin("com.jfrog.bintray", bintrayPlugin -> {
-                p.getPluginManager().apply("org.starchartlabs.flare.bintray-credentials");
-            });
-
-            DependencyConstraints dependencyConstraints = p.getExtensions().getByType(DependencyConstraints.class);
             ProjectMetaData projectMetaData = p.getExtensions().getByType(ProjectMetaData.class);
 
-            File dependenciesFile = project.file(project.getProjectDir().toPath().resolve("dependencies.properties"));
             File developersFile = project.file(project.getProjectDir().toPath().resolve("developers.properties"));
             File contributorsFile = project.file(project.getProjectDir().toPath().resolve("contributors.properties"));
-
-            if (dependenciesFile.exists()) {
-                dependencyConstraints.file(dependenciesFile);
-            }
 
             if (developersFile.exists()) {
                 projectMetaData.github(gh -> gh.developers(developersFile));

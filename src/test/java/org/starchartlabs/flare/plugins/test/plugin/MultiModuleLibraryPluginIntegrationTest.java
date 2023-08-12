@@ -49,8 +49,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
 
     private static final Path SUB_PROJECT_BUILD_FILE = BUILD_FILE_DIRECTORY.resolve("subProjectBuild.gradle");
 
-    private static final Path DEPENDENCIES_FILE = BUILD_FILE_DIRECTORY.resolve("dependencies.properties");
-
     private static final Path DEVELOPERS_FILE = BUILD_FILE_DIRECTORY.resolve("developers.properties");
 
     private static final Path CONTRIBUTORS_FILE = BUILD_FILE_DIRECTORY.resolve("contributors.properties");
@@ -76,7 +74,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 .addJavaFile("org.starchartlabs.flare.merge.coverage.reports", "Main")
                 .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports", "MainTest",
                         "org.starchartlabs.flare.merge.coverage.reports.Main")
-                .addFile(DEPENDENCIES_FILE, Paths.get("dependencies.properties"))
                 .build()
                 .getProjectDirectory();
 
@@ -84,12 +81,10 @@ public class MultiModuleLibraryPluginIntegrationTest {
                 .addJavaFile("org.starchartlabs.flare.merge.coverage.reports", "Main")
                 .addTestFile("org.starchartlabs.flare.test.merge.coverage.reports", "MainTest",
                         "org.starchartlabs.flare.merge.coverage.reports.Main")
-                .addFile(DEPENDENCIES_FILE, Paths.get("dependencies.properties"))
                 .build()
                 .getProjectDirectory();
 
         multiModuleProjectPath = TestGradleProject.builder(ROOT_PROJECT_BUILD_FILE)
-                .addFile(DEPENDENCIES_FILE, Paths.get("dependencies.properties"))
                 .addFile(DEVELOPERS_FILE, Paths.get("developers.properties"))
                 .addFile(CONTRIBUTORS_FILE, Paths.get("contributors.properties"))
                 .subProject("one", SUB_PROJECT_BUILD_FILE)
@@ -149,22 +144,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
                         "<class name=\"org/starchartlabs/flare/merge/coverage/reports/Main\" sourcefilename=\"Main.java\">"));
 
         Assert.assertTrue(coveredMainFile, "Coverage report missing line for expected source file");
-    }
-
-    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
-    public void singleProjectDependencyConstraints() throws Exception {
-        String expectedLine = "Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3";
-
-        Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
-                Strings.format("Did not find expected line '%s'", expectedLine));
-    }
-
-    @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
-    public void singleProjectBintrayCredentials() throws Exception {
-        String expectedLine = "Credentials configured: bintray";
-
-        Assert.assertTrue(singleProjectBuildResult.getOutput().contains(expectedLine),
-                Strings.format("Did not find expected line '%s'", expectedLine));
     }
 
     @Test(dependsOnMethods = { "singleProjectBuildSuccessful" })
@@ -275,22 +254,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
                         "<class name=\"org/starchartlabs/flare/merge/coverage/reports/Main\" sourcefilename=\"Main.java\">"));
 
         Assert.assertTrue(coveredMainFile, "Coverage report missing line for expected source file");
-    }
-
-    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
-    public void singleProjectNoExternalDependencyConstraints() throws Exception {
-        String expectedLine = "Applied configuration ':compile' dependency constraint: org.testng:testng:6.14.3";
-
-        Assert.assertTrue(singleProjectNoExternalBuildResult.getOutput().contains(expectedLine),
-                Strings.format("Did not find expected line '%s'", expectedLine));
-    }
-
-    @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
-    public void singleProjecNoExternaltBintrayCredentials() throws Exception {
-        String expectedLine = "Credentials configured: bintray";
-
-        Assert.assertFalse(singleProjectNoExternalBuildResult.getOutput().contains(expectedLine),
-                Strings.format("Found unexpected line '%s'", expectedLine));
     }
 
     @Test(dependsOnMethods = { "singleProjectNoExternalBuildSuccessful" })
@@ -408,27 +371,6 @@ public class MultiModuleLibraryPluginIntegrationTest {
     }
 
     @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
-    public void multiModuleProjectDependencyContraints() throws Exception {
-        List<String> expectedLines = new ArrayList<>();
-
-        expectedLines.add("Applied configuration ':one:compile' dependency constraint: org.testng:testng:6.14.3");
-        expectedLines.add("Applied configuration ':two:compile' dependency constraint: org.testng:testng:6.14.3");
-
-        for (String expectedLine : expectedLines) {
-            Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
-                    Strings.format("Did not find expected line '%s'", expectedLine));
-        }
-    }
-
-    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
-    public void multiModuleProjectBintrayCredentials() throws Exception {
-        String expectedLine = "Credentials configured: bintray";
-
-        Assert.assertTrue(multiModuleProjectBuildResult.getOutput().contains(expectedLine),
-                Strings.format("Did not find expected line '%s'", expectedLine));
-    }
-
-    @Test(dependsOnMethods = { "multiModuleProjectBuildSuccessful" })
     public void multiModuleProjectIncreasedTestLogging() throws Exception {
         List<String> expectedLines = new ArrayList<>();
 
@@ -481,7 +423,7 @@ public class MultiModuleLibraryPluginIntegrationTest {
             expectedLines.add("scm.developerConnection: scm:git:ssh://github.com/owner/" + subProjectName + ".git");
 
             expectedLines
-            .add("developer: dev-file-usernameonly:dev-file-usernameonly:https://github.com/dev-file-usernameonly");
+                    .add("developer: dev-file-usernameonly:dev-file-usernameonly:https://github.com/dev-file-usernameonly");
             expectedLines.add("developer: dev-file-username:dev-file-name:https://github.com/dev-file-username");
 
             expectedLines.add("contributor: contrib-file-usernameonly:https://github.com/contrib-file-usernameonly");
