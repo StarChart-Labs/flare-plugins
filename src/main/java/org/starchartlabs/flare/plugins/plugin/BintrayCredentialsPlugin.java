@@ -25,6 +25,8 @@ public class BintrayCredentialsPlugin implements Plugin<Project> {
         project.getPluginManager().withPlugin("com.jfrog.bintray", bintrayPlugin -> {
             setupManagedCredentials(project);
         });
+
+        project.getLogger().warn("Flare BinTray plug-in is deprecated - BinTray no longer exists");
     }
 
     private CredentialSet setupManagedCredentials(Project project) {
@@ -32,7 +34,7 @@ public class BintrayCredentialsPlugin implements Plugin<Project> {
 
         @SuppressWarnings("unchecked")
         NamedDomainObjectContainer<CredentialSet> credentials = (NamedDomainObjectContainer<CredentialSet>) project
-        .getExtensions().getByName("credentials");
+                .getExtensions().getByName("credentials");
 
         // Setup reading BinTray credentials from the environment, with defaults of blank to allow non-publishing
         // tasks to be run in environments where the environment variables are not set
