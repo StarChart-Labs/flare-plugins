@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [Unreleased]
+
+## [2.0.0]
 ### Changed
 - Removed `org.starchartlabs.flare.dependency-constraints` from multi-module library plug-in
 - Removed `org.starchartlabs.flare.bintray-credentials` from multi-module library plug-in
