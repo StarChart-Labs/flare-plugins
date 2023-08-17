@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Update to GitHub Actions based publish step to force artifacts to be built with correct Java version
 
 ## [2.0.1]
 ### Changed

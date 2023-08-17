@@ -12,7 +12,9 @@ To publish to the Gradle plug-in portal, first you must [setup an account](https
   * If there are any errors, stash the changes to the version number and changelog until the issue can be corrected and merged to master as a separate commit/issue
 * Commit the version number and CHANGE_LOG updates
 * Tag the git repository with the fully-qualified semantic version number
-* Publish plug-ins via `./gradlew publishPlugins`
+* Push commit and tag to GitHub
+* Run the "Publish" workflow on the tag/commited branch, which will automatically:
+  * Publish plug-ins via `./gradlew publishPlugins`
 * Verify each plug-in deployed by visiting its URL (of the form `https://plugins.gradle.org/plugin/<your-plugin-id>`)
 * Change version number to `<released version> + 1 micro` + `-SNAPSHOT`
 * Commit to git
